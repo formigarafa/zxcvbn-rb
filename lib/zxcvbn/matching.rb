@@ -539,7 +539,7 @@ module Zxcvbn
             token: token,
             i: rx_match.begin(0),
             j: rx_match.end(0) - 1,
-            regex_name: name,
+            regex_name: name.to_s,
             regex_match: rx_match
           }
           match_index = rx_match.begin(0) + 1

@@ -245,7 +245,7 @@ module Zxcvbn
         date: method(:date_guesses),
       }
       guesses = estimation_functions[match[:pattern].to_sym].call(match)
-      match[:guesses] = [guesses, min_guesses].max;
+      match[:guesses] = [guesses, min_guesses].max
       match[:guesses_log10] = Math.log10(match[:guesses])
       return match[:guesses]
     end
@@ -313,7 +313,7 @@ module Zxcvbn
       elsif match[:regex_name] == 'recent_year'
         # conservative estimate of year space: num years from REFERENCE_YEAR.
         # if year is close to REFERENCE_YEAR, estimate a year space of MIN_YEAR_SPACE.
-        year_space = abs(match[:regex_match[0]].to_i - REFERENCE_YEAR).abs
+        year_space = (match[:regex_match[0]].to_i - REFERENCE_YEAR).abs
         year_space = [year_space, MIN_YEAR_SPACE].max
         return year_space
       end
