@@ -705,8 +705,8 @@ module Zxcvbn
           if dm
             return {
               year: y,
-              month: dm.month,
-              day: dm.day
+              month: dm[:month],
+              day: dm[:day]
             }
           else
             # for a candidate that includes a four-digit year,
