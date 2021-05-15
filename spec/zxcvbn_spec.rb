@@ -1,11 +1,7 @@
 # frozen_string_literal: true
 
 RSpec.describe Zxcvbn do
-  it "has a version number" do
-    expect(Zxcvbn::VERSION).not_to be nil
-  end
-
-  it "does something useful" do
-    expect(false).to eq(true)
+  it "runs" do
+    expect{ Zxcvbn.zxcvbn("1234") }.not_to raise_error
   end
 end

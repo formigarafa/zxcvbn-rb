@@ -1,8 +1,7 @@
 # Zxcvbn
 
-Welcome to your new gem! In this directory, you'll find the files you need to be able to package up your Ruby library into a gem. Put your Ruby code in the file `lib/zxcvbn`. To experiment with that code, run `bin/console` for an interactive prompt.
-
-TODO: Delete this and the text above, and describe your gem
+This is a direct Ruby port of Dropbox's [zxcvbn.js][zxcvbn.js] JavaScript library.
+The intention is to provide all the same features and same results as close to the original JS fucntion would do.
 
 ## Installation
 
@@ -22,7 +21,51 @@ Or install it yourself as:
 
 ## Usage
 
-TODO: Write usage instructions here
+```
+Zxcvbn.zxcvbn("password")
+=> {
+  :password => "pasword",
+  :guesses => 3566,
+  :guesses_log10 => 3.5521813388393357,
+  :sequence => [
+    {
+      :pattern => "dictionary",
+      :i => 0,
+      :j => 6,
+      :token => "pasword",
+      :matched_word => "pasword",
+      :rank => 3565,
+      :dictionary_name => "passwords",
+      :reversed => false,
+      :l33t => false,
+      :base_guesses => 3565,
+      :uppercase_variations => 1,
+      :l33t_variations => 1,
+      :guesses => 3565,
+      :guesses_log10 => 3.5520595341878844
+    }
+  ],
+  :calc_time => 0,
+  :crack_times_seconds => {
+    :online_throttling_100_per_hour => 128376.0,
+    :online_no_throttling_10_per_second => 356.6,
+    :offline_slow_hashing_1e4_per_second => 0.3566,
+    :offline_fast_hashing_1e10_per_second => 3.566e-07
+  },
+  :crack_times_display => {
+    :online_throttling_100_per_hour => "1 day",
+    :online_no_throttling_10_per_second => "6 minutes",
+    :offline_slow_hashing_1e4_per_second => "less than a second",
+    :offline_fast_hashing_1e10_per_second => "less than a second"
+  },
+  :score => 1,
+  :feedback =>
+  {
+    :warning => "This is a very common password",
+    :suggestions => ["Add another word or two. Uncommon words are better."]
+  }
+}
+```
 
 ## Development
 
