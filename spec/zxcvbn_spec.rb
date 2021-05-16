@@ -94,9 +94,15 @@ RSpec.describe Zxcvbn do
     #{Time.now.year}
   PASSWORD_LIST
 
+  password_list = ['johnsonphilosophy']
+  password_list = ['marysjohnson']
+  password_list = ['firstwang']
+
   password_list.each do |pw|
     it "works with '#{pw}'" do
       expect{ Zxcvbn.zxcvbn(pw) }.not_to raise_error
+      # x = Zxcvbn.zxcvbn(pw)
+      # binding.pry
     end
   end
 

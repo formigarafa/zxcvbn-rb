@@ -406,6 +406,7 @@ module Zxcvbn
         if !greedy_match
           break
         end
+        # coverage ???
         if (greedy_match[0].length > lazy_match[0].length)
           # greedy beats lazy for 'aabaab'
           #   greedy: [aabaab, aab]

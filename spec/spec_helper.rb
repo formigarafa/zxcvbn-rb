@@ -1,6 +1,12 @@
 # frozen_string_literal: true
 
 require 'bundler/setup'
+# require "pry-byebug"
+
+if ENV["DISABLE_COVERAGE"] != "true"
+  require "simplecov"
+  SimpleCov.start
+end
 require "zxcvbn"
 
 Dir[Pathname.new(File.expand_path('../', __FILE__)).join('support/**/*.rb')].each {|f| require f}
