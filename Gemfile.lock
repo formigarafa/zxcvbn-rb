@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    zxcvbn (0.1.1)
+    zxcvbn (0.1.2)
 
 GEM
   remote: https://rubygems.org/
