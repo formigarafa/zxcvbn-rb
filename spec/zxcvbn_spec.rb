@@ -118,7 +118,7 @@ RSpec.describe Zxcvbn do
         it "produces same output for '#{pw}'" do
           ruby_result = strip_log10 Zxcvbn::Matching.omnimatch(pw)
           js_result = strip_log10 js_omnimatch(pw)
-          expect(ruby_result).to eq js_result
+          expect(ruby_result).to contain_exactly(*js_result)
         end
       end
     end
