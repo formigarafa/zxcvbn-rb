@@ -178,7 +178,7 @@ module Zxcvbn
         optimal_match_sequence = []
         k = n - 1
         # find the final best sequence length and score
-        l, g = optimal[:g][k].min_by{|candidate_l, candidate_g| candidate_g }
+        l, g = (optimal[:g][k] || []).min_by{|candidate_l, candidate_g| candidate_g || 0 }
         while k >= 0
           m = optimal[:m][k][l]
           optimal_match_sequence.unshift(m)
@@ -308,8 +308,8 @@ module Zxcvbn
         digits: 10,
         symbols: 33
       }
-      if char_class_bases.has_key? match[:regex_name]
-        return char_class_bases[match[:regex_name]] ** match[:token].length
+      if char_class_bases.has_key? match[:regex_name].to_sym
+        return char_class_bases[match[:regex_name].to_sym] ** match[:token].length
       elsif match[:regex_name] == 'recent_year'
         # conservative estimate of year space: num years from REFERENCE_YEAR.
         # if year is close to REFERENCE_YEAR, estimate a year space of MIN_YEAR_SPACE.
@@ -421,7 +421,7 @@ module Zxcvbn
         chrs = match[:token].downcase.split('')
         ss = chrs.count{|chr| chr == subbed }
         uu = chrs.count{|chr| chr == unsubbed }
-        if ss === 0 || uu === 0
+        if ss == 0 || uu == 0
           # for this sub, password is either fully subbed (444) or fully unsubbed (aaa)
           # treat that as doubling the space (attacker needs to try fully subbed chars in addition to
           # unsubbed.)

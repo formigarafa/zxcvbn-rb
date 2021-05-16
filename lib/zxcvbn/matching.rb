@@ -23,21 +23,22 @@ module Zxcvbn
     }
 
     L33T_TABLE = {
-      a: ['4', '@'],
-      b: ['8'],
-      c: ['(', '{', '[', '<'],
-      e: ['3'],
-      g: ['6', '9'],
-      i: ['1', '!', '|'],
-      l: ['1', '|', '7'],
-      o: ['0'],
-      s: ['$', '5'],
-      t: ['+', '7'],
-      x: ['%'],
-      z: ['2']
+      "a" => ['4', '@'],
+      "b" => ['8'],
+      "c" => ['(', '{', '[', '<'],
+      "e" => ['3'],
+      "g" => ['6', '9'],
+      "i" => ['1', '!', '|'],
+      "l" => ['1', '|', '7'],
+      "o" => ['0'],
+      "s" => ['$', '5'],
+      "t" => ['+', '7'],
+      "x" => ['%'],
+      "z" => ['2']
     }
 
     REGEXEN = {
+      # alpha_lower: /[a-z]/,
       # recent_year: /19\d\d|200\d|201\d/g
       recent_year: /19\d\d|200\d|201\d/
     }
@@ -154,7 +155,7 @@ module Zxcvbn
                 pattern: 'dictionary',
                 i: i,
                 j: j,
-                token: password_lower[i..j],
+                token: password[i..j],
                 matched_word: word,
                 rank: rank,
                 dictionary_name: dictionary_name.to_s,
@@ -327,7 +328,7 @@ module Zxcvbn
         j = i + 1
         last_direction = nil
         turns = 0
-        if (graph_name == 'qwerty' || graph_name == 'dvorak') && SHIFTED_RX.match?(password[i])
+        if (graph_name == :qwerty || graph_name == :dvorak) && SHIFTED_RX.match?(password[i])
           # initial character is shifted
           shifted_count = 1
         else
@@ -375,7 +376,7 @@ module Zxcvbn
                 i: i,
                 j: j - 1,
                 token: password[i..j],
-                graph: graph_name,
+                graph: graph_name.to_s,
                 turns: turns,
                 shifted_count: shifted_count
               }
@@ -463,6 +464,7 @@ module Zxcvbn
       result = []
 
       update = -> (i, j, delta) do
+        delta ||= 0
         if j - i > 1 || (delta).abs == 1
           if 0 < delta.abs && delta.abs <= MAX_DELTA
             token = password[i..j]
@@ -562,15 +564,17 @@ module Zxcvbn
       # to every possible date match.
       matches = []
       maybe_date_no_separator = /^\d{4,8}$/
-      maybe_date_with_separator = %r{
-        ^
-        ( \d{1,4} )    # day, month, year
-        ( [\s/\\_.-] ) # separator
-        ( \d{1,2} )    # day, month
-        \2             # same separator
-        ( \d{1,4} )    # day, month, year
-        $
-      }
+
+      # maybe_date_with_separator = %r{
+      #   ^
+      #   ( \d{1,4} )    # day, month, year
+      #   ( [\s/\\_.-] ) # separator
+      #   ( \d{1,2} )    # day, month
+      #   \2             # same separator
+      #   ( \d{1,4} )    # day, month, year
+      #   $
+      # }
+      maybe_date_with_separator = /^(\d{1,4})([\s\/\\_.-])(\d{1,2})\2(\d{1,4})$/
 
       (0..(password.length - 4)).each do |i|
         (i + 3..i + 7).each do |j|
@@ -632,9 +636,9 @@ module Zxcvbn
             i: i,
             j: j,
             separator: rx_match[2],
-            year: dmy.year,
-            month: dmy.month,
-            day: dmy.day
+            year: dmy[:year],
+            month: dmy[:month],
+            day: dmy[:day]
           }
         end
       end

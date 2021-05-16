@@ -1,13 +1,15 @@
 # frozen_string_literal: true
 
 RSpec.describe Zxcvbn do
-  password_list = <<~PASSWORD_LIST
+  password_list = (<<~PASSWORD_LIST).lines.map(&:strip).reject(&:empty?)
     zxcvbn
+    ZXCVBN
     qwER43@!
     Tr0ub4dour&3
     correcthorsebatterystaple
     coRrecth0rseba++ery9.23.2007staple$
 
+    P@ssword
     p@ssword
     p@$$word
     123456
@@ -20,6 +22,10 @@ RSpec.describe Zxcvbn do
     iloveyou
     woaini
     wang
+    johnsonphilosophy
+    nosnhoj
+    2001
+    Johnjohnson
     tianya
     zhang198822
     li4478
@@ -75,17 +81,31 @@ RSpec.describe Zxcvbn do
     ros3bud99
     r0s3bud99
     R0$38uD99
-
+    abcabcabc123123123abcabcabc
+    abcdefghijk
+    abcabcabc
     verlineVANDERMARK
 
     eheuczkqyq
     rWibMFACxAUGZmxhVncy
     Ba9ZyWABu99[BK#6MBgbH88Tofv)vs$w
+    philosophy
+    13.05.1988
+    #{Time.now.year}
   PASSWORD_LIST
 
-  password_list.lines.map(&:strip).reject(&:empty?).each do |pw|
+  password_list.each do |pw|
     it "works with '#{pw}'" do
       expect{ Zxcvbn.zxcvbn(pw) }.not_to raise_error
     end
+  end
+
+  it "works with empty string" do
+    expect{ Zxcvbn.zxcvbn("") }.not_to raise_error
+  end
+
+  it "works with very long pass" do
+    pw = "hKmuwA4TkmoSmqTuBX#x%%fscPx?BN^JxylhceDouLFLNRuXX5E$R@8^h%mxpv6F#q6*?52V7cw^QwOC4_7XUXBPp%C9#LTGo-^CcyF*mE2UE^U?gH6Vc3f!Tq6C|KLn%uwqg3q12SrUW@lryJPnUKVfcS0hPJdK-RVDsZab01_ueyz?oWDq2NKo3zbn2la9t=PkMk1L62eV2yqdorG7pLY1pCuDf1gJ=%ASFHP7+taxrI0vH4kvhWfHScdveV@?"
+    expect{ Zxcvbn.zxcvbn(pw) }.not_to raise_error
   end
 end
