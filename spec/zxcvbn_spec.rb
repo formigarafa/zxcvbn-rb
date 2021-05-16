@@ -108,4 +108,6 @@ RSpec.describe Zxcvbn do
     pw = "hKmuwA4TkmoSmqTuBX#x%%fscPx?BN^JxylhceDouLFLNRuXX5E$R@8^h%mxpv6F#q6*?52V7cw^QwOC4_7XUXBPp%C9#LTGo-^CcyF*mE2UE^U?gH6Vc3f!Tq6C|KLn%uwqg3q12SrUW@lryJPnUKVfcS0hPJdK-RVDsZab01_ueyz?oWDq2NKo3zbn2la9t=PkMk1L62eV2yqdorG7pLY1pCuDf1gJ=%ASFHP7+taxrI0vH4kvhWfHScdveV@?"
     expect{ Zxcvbn.zxcvbn(pw) }.not_to raise_error
   end
+
+  it { binding.pry }
 end
