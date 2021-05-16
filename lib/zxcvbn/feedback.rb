@@ -8,7 +8,6 @@ module Zxcvbn
     }
 
     def self.get_feedback(score, sequence)
-      pp [score, sequence.size]
       if sequence.empty?
         # starting feedback
         return DEFAULT_FEEDBACK
@@ -22,7 +21,6 @@ module Zxcvbn
         }
       end
 
-      binding.pry
       longest_match = sequence.max_by{|match| match[:token].length }
       feedback = get_match_feedback(longest_match, sequence.size == 1)
       extra_feedback = 'Add another word or two. Uncommon words are better.'

@@ -94,15 +94,15 @@ RSpec.describe Zxcvbn do
     #{Time.now.year}
   PASSWORD_LIST
 
-  password_list = ['johnsonphilosophy']
-  password_list = ['marysjohnson']
-  password_list = ['firstwang']
-
   password_list.each do |pw|
     it "works with '#{pw}'" do
       expect{ Zxcvbn.zxcvbn(pw) }.not_to raise_error
-      # x = Zxcvbn.zxcvbn(pw)
-      # binding.pry
+    end
+
+    it "works the same as js version for '#{pw}'" do
+      ruby_result = Zxcvbn.zxcvbn(pw)
+      js_result = js_ctx.call('zxcvbn', pw)
+      expect(ruby_result).to eq js_result
     end
   end
 
@@ -114,6 +114,4 @@ RSpec.describe Zxcvbn do
     pw = "hKmuwA4TkmoSmqTuBX#x%%fscPx?BN^JxylhceDouLFLNRuXX5E$R@8^h%mxpv6F#q6*?52V7cw^QwOC4_7XUXBPp%C9#LTGo-^CcyF*mE2UE^U?gH6Vc3f!Tq6C|KLn%uwqg3q12SrUW@lryJPnUKVfcS0hPJdK-RVDsZab01_ueyz?oWDq2NKo3zbn2la9t=PkMk1L62eV2yqdorG7pLY1pCuDf1gJ=%ASFHP7+taxrI0vH4kvhWfHScdveV@?"
     expect{ Zxcvbn.zxcvbn(pw) }.not_to raise_error
   end
-
-  it { binding.pry }
 end
