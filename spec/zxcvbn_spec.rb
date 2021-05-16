@@ -108,7 +108,7 @@ RSpec.describe Zxcvbn do
             js_result = js_matcher(matcher, pw)
             ruby_result = Zxcvbn::Matching.send(matcher, pw)
             # expect(ruby_result).to eq js_result
-            expect(ruby_result).to contain_exactly(*js_result)
+            expect(strip_log10 ruby_result).to contain_exactly(*strip_log10(js_result))
           end
         end
       end
@@ -128,7 +128,7 @@ RSpec.describe Zxcvbn do
       password_list.each do |pw|
         it "#zxcvbn produces same output for '#{pw}'" do
           ruby_result = Zxcvbn.zxcvbn(pw)
-          js_result = js_ctx.call('zxcvbn', pw)
+          js_result = js_zxcvbn(pw)
           expect(strip_log10 ruby_result).to eq strip_log10(js_result)
         end
       end

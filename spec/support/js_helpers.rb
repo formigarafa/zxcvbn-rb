@@ -21,6 +21,10 @@ module JsHelpers
     cached_eval(%Q{matching['#{matcher}']("#{password.gsub('"', '\"')}")})
   end
 
+  def js_zxcvbn(password)
+    cached_eval(%Q{zxcvbn("#{password.gsub('"', '\"')}")})
+  end
+
   def cached_eval(js_str)
     tmp_hash = Base64.urlsafe_encode64 Digest::MD5.digest(js_str.to_s), padding: false
     cache_name = Pathname(File.expand_path("../../../tmp/#{tmp_hash}.json", __FILE__))

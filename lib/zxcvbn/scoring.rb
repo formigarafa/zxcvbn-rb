@@ -29,7 +29,7 @@ module Zxcvbn
       if k == 0
         return 1
       end
-      r = 1
+      r = 1.0
       (1..k).each do |d|
         r *= n
         r /= d
@@ -357,7 +357,7 @@ module Zxcvbn
       end
       # add extra guesses for shifted keys. (% instead of 5, A instead of a.)
       # math is similar to extra guesses of l33t substitutions in dictionary matches.
-      if match["shifted_count"]
+      if match["shifted_count"] && match["shifted_count"] != 0
         ss = match["shifted_count"]
         uu = match["token"].length - match["shifted_count"] # unshifted count
         if ss == 0 || uu == 0
