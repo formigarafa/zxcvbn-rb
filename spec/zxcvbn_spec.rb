@@ -105,10 +105,9 @@ RSpec.describe Zxcvbn do
       context "for matcher #{matcher}" do
         password_list.each do |pw|
           it "produces same output for '#{pw}'" do
-            js_result = js_matcher(matcher, pw)
-            ruby_result = Zxcvbn::Matching.send(matcher, pw)
-            # expect(ruby_result).to eq js_result
-            expect(strip_log10 ruby_result).to contain_exactly(*strip_log10(js_result))
+            js_result = strip_log10 js_matcher(matcher, pw)
+            ruby_result = strip_log10 Zxcvbn::Matching.send(matcher, pw)
+            expect(ruby_result).to contain_exactly(*js_result)
           end
         end
       end
@@ -117,19 +116,61 @@ RSpec.describe Zxcvbn do
     context "when running #omnimatch" do
       password_list.each do |pw|
         it "produces same output for '#{pw}'" do
-          ruby_result = Zxcvbn::Matching.omnimatch(pw)
-          js_result = js_omnimatch(pw)
+          ruby_result = strip_log10 Zxcvbn::Matching.omnimatch(pw)
+          js_result = strip_log10 js_omnimatch(pw)
           expect(ruby_result).to eq js_result
         end
       end
     end
 
+    context "when running #most_guessable_match_sequence" do
+      password_list.each do |pw|
+        it "produces same output for '#{pw}'" do
+          matches = Zxcvbn::Matching.omnimatch(pw)
+          ruby_result = strip_log10 Zxcvbn::Scoring.most_guessable_match_sequence(pw, matches)
+          js_result = strip_log10 js_most_guessable_match_sequence(pw, matches)
+          expect(ruby_result).to eq js_result
+        end
+      end
+    end
+
+    it 'nCk' do
+      [
+        [ 0,  0, 1 ],
+        [ 1,  0, 1 ],
+        [ 5,  0, 1 ],
+        [ 0,  1, 0 ],
+        [ 0,  5, 0 ],
+        [ 2,  1, 2 ],
+        [ 4,  2, 6 ],
+        [ 33, 7, 4272048 ]
+      ].each do |(n, k, result)|
+        expect(Zxcvbn::Scoring.nCk(n, k)).to eq(result)
+      end
+      n = 49
+      k = 12
+      expect(Zxcvbn::Scoring.nCk(n, k)).to eq(Zxcvbn::Scoring.nCk(n, n-k))
+      expect(Zxcvbn::Scoring.nCk(n, k)).to eq(Zxcvbn::Scoring.nCk(n-1, k-1) + Zxcvbn::Scoring.nCk(n-1, k))
+    end
+
+    it "spatial_guesses" do
+      {token: "zxcvbn", graph: "qwerty", turns: 1, shifted_count: 0}
+      match = {
+        "token" => 'zxcvbn',
+        "graph" => 'qwerty',
+        "turns" => 1,
+        "shifted_count" => 0,
+      }
+      base_guesses = Zxcvbn::Scoring::KEYBOARD_STARTING_POSITIONS * Zxcvbn::Scoring::KEYBOARD_AVERAGE_DEGREE * (match["token"].length - 1)
+      expect(Zxcvbn::Scoring.spatial_guesses(match)).to eq(base_guesses)
+    end
+
     context "when running #zxcvbn" do
       password_list.each do |pw|
         it "#zxcvbn produces same output for '#{pw}'" do
-          ruby_result = Zxcvbn.zxcvbn(pw)
-          js_result = js_zxcvbn(pw)
-          expect(strip_log10 ruby_result).to eq strip_log10(js_result)
+          ruby_result = strip_log10 Zxcvbn.zxcvbn(pw)
+          js_result = strip_log10 js_zxcvbn(pw)
+          expect(ruby_result).to eq(js_result)
         end
       end
     end
