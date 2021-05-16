@@ -123,9 +123,29 @@ RSpec.describe Zxcvbn do
       end
     end
 
+    context "when running #estimate_guesses" do
+      before do
+        allow(Zxcvbn::Scoring).to receive(:estimate_guesses).and_wrap_original do |m, *args|
+          js_result = js_estimate_guesses(*args)
+          ruby_result = m.call(*args)
+          expect(ruby_result).to eq(js_result)
+          ruby_result
+        end
+      end
+
+      password_list.each do |pw|
+      # ["2001"].each do |pw|
+        it "#estimate_guesses produces same output for '#{pw}'" do
+          matches = Zxcvbn::Matching.omnimatch(pw)
+          Zxcvbn::Scoring.most_guessable_match_sequence(pw, matches)
+        end
+      end
+    end
+
     context "when running #most_guessable_match_sequence" do
       password_list.each do |pw|
-        it "produces same output for '#{pw}'" do
+      # ["2001"].each do |pw|
+        it "#most_guessable_match_sequence produces same output for '#{pw}'" do
           matches = Zxcvbn::Matching.omnimatch(pw)
           ruby_result = strip_log10 Zxcvbn::Scoring.most_guessable_match_sequence(pw, matches)
           js_result = strip_log10 js_most_guessable_match_sequence(pw, matches)

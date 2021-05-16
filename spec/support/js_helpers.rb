@@ -27,7 +27,12 @@ module JsHelpers
 
   def js_most_guessable_match_sequence(password, matches)
     json_matches = matches.to_json
-    js_ctx.eval(%Q{scoring.most_guessable_match_sequence("#{password.gsub('"', '\"')}", #{json_matches})})
+    cached_eval(%Q{scoring.most_guessable_match_sequence("#{password.gsub('"', '\"')}", #{json_matches})})
+  end
+
+  def js_estimate_guesses(match, password)
+    json_matches = match.to_json
+    cached_eval(%Q{scoring.estimate_guesses(#{json_matches}, "#{password.gsub('"', '\"')}")})
   end
 
   def cached_eval(js_str)
