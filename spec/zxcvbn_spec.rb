@@ -91,6 +91,12 @@ RSpec.describe Zxcvbn do
     Ba9ZyWABu99[BK#6MBgbH88Tofv)vs$w
     philosophy
     13.05.1988
+    chenlu0525
+    Bilbo Baggin
+    rtrtrt
+    rtrtrtrt
+    rtrtrtrtrt
+    rtrtrtrtrtrt
     #{Time.now.year}
   PASSWORD_LIST
 
