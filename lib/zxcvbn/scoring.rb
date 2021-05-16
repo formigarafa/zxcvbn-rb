@@ -323,7 +323,8 @@ module Zxcvbn
       # base guesses: (year distance from REFERENCE_YEAR) * num_days * num_years
       year_space = [(match["year"] - REFERENCE_YEAR).abs, MIN_YEAR_SPACE].max
       guesses = year_space * 365
-      if match["separator"]
+      separator = match["separator"]
+      if !["", nil].include?(separator)
         # add factor of 4 for separator selection (one of ~4 choices)
         guesses *= 4
       end

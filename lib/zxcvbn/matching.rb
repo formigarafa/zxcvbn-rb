@@ -651,9 +651,10 @@ module Zxcvbn
       # 5(!) other date matches: 15_06_04, 5_06_04, ..., even 2015 (matched as 5/1/2020)
 
       # to reduce noise, remove date matches that are strict substrings of others
-      return sorted(matches.uniq.select do |match|
+      return sorted(matches.uniq.reject do |match|
         matches.find do |other_match|
-          other_match["i"] <= match["i"] && other_match["j"] >= match["j"]
+          (match["i"] > other_match["i"] && match["j"] <= other_match["j"]) ||
+          (match["i"] >= other_match["i"] && match["j"] < other_match["j"])
         end
       end)
     end
