@@ -116,9 +116,9 @@ RSpec.describe Zxcvbn do
     context "when running #zxcvbn" do
       password_list.each do |pw|
         it "#zxcvbn produces same output for '#{pw}'" do
-          ruby_result = JSON.parse(Zxcvbn.zxcvbn(pw).to_json)
+          ruby_result = Zxcvbn.zxcvbn(pw)
           js_result = js_ctx.call('zxcvbn', pw)
-          expect(ruby_result).to eq js_result
+          expect(strip_log10 ruby_result).to eq strip_log10(js_result)
         end
       end
     end
