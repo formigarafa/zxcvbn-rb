@@ -94,15 +94,33 @@ RSpec.describe Zxcvbn do
     #{Time.now.year}
   PASSWORD_LIST
 
-  password_list.each do |pw|
-    it "works with '#{pw}'" do
-      expect{ Zxcvbn.zxcvbn(pw) }.not_to raise_error
+  context "when running after code translation" do
+    password_list.each do |pw|
+      it "works with '#{pw}'" do
+        expect{ Zxcvbn.zxcvbn(pw) }.not_to raise_error
+      end
+    end
+  end
+
+  context "when comparing with js library" do
+    context "when running #omnimatch" do
+      password_list.each do |pw|
+        it "produces same output for '#{pw}'" do
+          ruby_result = JSON.parse(Zxcvbn::Matching.omnimatch(pw).to_json)
+          js_result = js_omnimatch(pw)
+          expect(ruby_result).to eq js_result
+        end
+      end
     end
 
-    it "works the same as js version for '#{pw}'" do
-      ruby_result = Zxcvbn.zxcvbn(pw)
-      js_result = js_ctx.call('zxcvbn', pw)
-      expect(ruby_result).to eq js_result
+    context "when running #zxcvbn" do
+      password_list.each do |pw|
+        it "#zxcvbn produces same output for '#{pw}'" do
+          ruby_result = JSON.parse(Zxcvbn.zxcvbn(pw).to_json)
+          js_result = js_ctx.call('zxcvbn', pw)
+          expect(ruby_result).to eq js_result
+        end
+      end
     end
   end
 

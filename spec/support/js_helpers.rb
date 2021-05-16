@@ -10,4 +10,8 @@ module JsHelpers
       ctx
     end
   end
+
+  def js_omnimatch(password)
+    js_ctx.eval(%Q{matching.omnimatch("#{password.gsub('"', '\"')}")})
+  end
 end
