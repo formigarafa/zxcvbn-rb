@@ -297,7 +297,7 @@ module Zxcvbn
           match["l33t"] = true;
           match["token"] = token;
           match["sub"] = match_sub;
-          match["sub_display"] = results = match_sub.sort_by{|k, v| k}.to_h.map {|k, v| "#{k} -> #{v}" }.join(", ")
+          match["sub_display"] = results = match_sub.map {|k, v| "#{k} -> #{v}" }.join(", ")
           matches << match
         end
       end

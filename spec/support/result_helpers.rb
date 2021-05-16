@@ -6,10 +6,11 @@ module ResultHelpers
         m.reject!{|k, v| k == "guesses_log10"}
       end
     else
-      result.each do |m|
+      result.map do |m|
         (m["base_matches"] || []).each do |bm|
           bm.reject!{|k, v| k == "guesses_log10"}
         end
+        m.reject!{|k, v| k == "sub_display" }
       end
     end
     result
