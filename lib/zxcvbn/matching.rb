@@ -501,11 +501,10 @@ module Zxcvbn
       result = []
       i = 0
       last_delta = nil
+
       (1...password.length).each do |k|
-        delta = password.bytes[k] - password.bytes[k - 1]
-        if !last_delta
-          last_delta = delta
-        end
+        delta = password[k].ord - password[k - 1].ord
+        last_delta ||= delta
         if delta == last_delta
           next
         end
