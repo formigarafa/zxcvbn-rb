@@ -115,18 +115,8 @@ module Zxcvbn
       obj.empty?
     end
 
-    # extend: function(lst, lst2) {
-    #   return lst.push.apply(lst, lst2);
-    # },
-
     def self.translate(string, chr_map)
       string.split('').map {|chr| chr_map[chr] || chr}.join("")
-    end
-
-    def self.mod(n, m)
-      # double check the need for this function
-      binding.pry
-      # return ((n % m) + m) % m; # mod impl that works for negative numbers
     end
 
     def self.sorted(matches)
