@@ -534,7 +534,7 @@ module Zxcvbn
             "i" => rx_match.begin(0),
             "j" => rx_match.end(0) - 1,
             "regex_name" => name,
-            "regex_match" => rx_match
+            "regex_match" => rx_match.to_a
           }
           match_index = rx_match.begin(0) + 1
         end
