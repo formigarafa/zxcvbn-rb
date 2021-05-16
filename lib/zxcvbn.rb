@@ -23,12 +23,12 @@ module Zxcvbn
     Matching.set_user_input_dictionary(sanitized_inputs)
     matches = Matching.omnimatch(password)
     result = Scoring.most_guessable_match_sequence(password, matches)
-    result[:calc_time] = (Time.now.to_f * 1000).to_i - start
-    attack_times = TimeEstimates.estimate_attack_times(result[:guesses])
+    result["calc_time"] = (Time.now.to_f * 1000).to_i - start
+    attack_times = TimeEstimates.estimate_attack_times(result["guesses"])
     attack_times.each do |prop, val|
       result[prop] = val
     end
-    result[:feedback] = Feedback.get_feedback(result[:score], result[:sequence])
+    result["feedback"] = Feedback.get_feedback(result["score"], result["sequence"])
     return result
   end
 end

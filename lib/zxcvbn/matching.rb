@@ -16,10 +16,10 @@ module Zxcvbn
     end
 
     GRAPHS = {
-      qwerty: ADJACENCY_GRAPHS[:qwerty],
-      dvorak: ADJACENCY_GRAPHS[:dvorak],
-      keypad: ADJACENCY_GRAPHS[:keypad],
-      mac_keypad: ADJACENCY_GRAPHS[:mac_keypad]
+      "qwerty" => ADJACENCY_GRAPHS["qwerty"],
+      "dvorak" => ADJACENCY_GRAPHS["dvorak"],
+      "keypad" => ADJACENCY_GRAPHS["keypad"],
+      "mac_keypad" => ADJACENCY_GRAPHS["mac_keypad"]
     }
 
     L33T_TABLE = {
@@ -40,7 +40,7 @@ module Zxcvbn
     REGEXEN = {
       # alpha_lower: /[a-z]/,
       # recent_year: /19\d\d|200\d|201\d/g
-      recent_year: /19\d\d|200\d|201\d/
+      "recent_year" => /19\d\d|200\d|201\d/
     }
 
     DATE_MAX_YEAR = 2050
@@ -122,7 +122,7 @@ module Zxcvbn
 
     def self.sorted(matches)
       # sort on i primary, j secondary
-      matches.sort_by{|match| [match[:i], match[:j]] }
+      matches.sort_by{|match| [match["i"], match["j"]] }
     end
 
     # ------------------------------------------------------------------------------
@@ -152,15 +152,15 @@ module Zxcvbn
               word = password_lower[i..j]
               rank = ranked_dict[word]
               matches << {
-                pattern: 'dictionary',
-                i: i,
-                j: j,
-                token: password[i..j],
-                matched_word: word,
-                rank: rank,
-                dictionary_name: dictionary_name.to_s,
-                reversed: false,
-                l33t: false
+                "pattern" => 'dictionary',
+                "i" => i,
+                "j" => j,
+                "token" => password[i..j],
+                "matched_word" => word,
+                "rank" => rank,
+                "dictionary_name" => dictionary_name,
+                "reversed" => false,
+                "l33t" => false
               }
             end
           end
@@ -173,10 +173,10 @@ module Zxcvbn
       reversed_password = password.reverse
       matches = dictionary_match(reversed_password, _ranked_dictionaries)
       matches.each do |match|
-        match[:token] = match[:token].reverse
-        match[:reversed] = true
+        match["token"] = match["token"].reverse
+        match["reversed"] = true
         # map coordinates back to original string
-        match[:i], match[:j] = [password.length - 1 - match[:j], password.length - 1 - match[:i]]
+        match["i"], match["j"] = [password.length - 1 - match["j"], password.length - 1 - match["i"]]
       end
       return sorted(matches)
     end
@@ -284,8 +284,8 @@ module Zxcvbn
         end
         subbed_password = translate(password, sub)
         dictionary_match(subbed_password, _ranked_dictionaries).each do |match|
-          token = password[match[:i]..match[:j]]
-          if token.downcase == match[:matched_word]
+          token = password[match["i"]..match["j"]]
+          if token.downcase == match["matched_word"]
             next # only return the matches that contain an actual substitution
           end
           match_sub = {} # subset of mappings in sub that are in use for this match
@@ -294,10 +294,10 @@ module Zxcvbn
               match_sub[subbed_chr] = chr
             end
           end
-          match[:l33t] = true;
-          match[:token] = token;
-          match[:sub] = match_sub;
-          match[:sub_display] = results = match_sub.map {|k, v| "#{k} -> #{v}" }.join(", ")
+          match["l33t"] = true;
+          match["token"] = token;
+          match["sub"] = match_sub;
+          match["sub_display"] = results = match_sub.map {|k, v| "#{k} -> #{v}" }.join(", ")
           matches << match
         end
       end
@@ -305,7 +305,7 @@ module Zxcvbn
         # filter single-character l33t matches to reduce noise.
         # otherwise '1' matches 'i', '4' matches 'a', both very common English words
         # with low dictionary rank.
-        match[:token].length > 1;
+        match["token"].length > 1;
       end)
     end
 
@@ -328,7 +328,7 @@ module Zxcvbn
         j = i + 1
         last_direction = nil
         turns = 0
-        if (graph_name == :qwerty || graph_name == :dvorak) && SHIFTED_RX.match?(password[i])
+        if (graph_name == 'qwerty' || graph_name == 'dvorak') && SHIFTED_RX.match?(password[i])
           # initial character is shifted
           shifted_count = 1
         else
@@ -372,13 +372,13 @@ module Zxcvbn
             # otherwise push the pattern discovered so far, if any...
             if j - i > 2 # don't consider length 1 or 2 chains.
               matches << {
-                pattern: 'spatial',
-                i: i,
-                j: j - 1,
-                token: password[i..j],
-                graph: graph_name.to_s,
-                turns: turns,
-                shifted_count: shifted_count
+                "pattern" => 'spatial',
+                "i" => i,
+                "j" => j - 1,
+                "token" => password[i..j],
+                "graph" => graph_name,
+                "turns" => turns,
+                "shifted_count" => shifted_count
               }
             end
             # ...and then start a new search for the rest of the password.
@@ -427,17 +427,17 @@ module Zxcvbn
         i, j = [match.begin(0), match.end(0) - 1]
         # recursively match and score the base string
         base_analysis = Scoring.most_guessable_match_sequence(base_token, omnimatch(base_token))
-        base_matches = base_analysis[:sequence]
-        base_guesses = base_analysis[:guesses]
+        base_matches = base_analysis["sequence"]
+        base_guesses = base_analysis["guesses"]
         matches << {
-          pattern: 'repeat',
-          i: i,
-          j: j,
-          token: match[0],
-          base_token: base_token,
-          base_guesses: base_guesses,
-          base_matches: base_matches,
-          repeat_count: match[0].length / base_token.length
+          "pattern" => 'repeat',
+          "i" => i,
+          "j" => j,
+          "token" => match[0],
+          "base_token" => base_token,
+          "base_guesses" => base_guesses,
+          "base_matches" => base_matches,
+          "repeat_count" => match[0].length / base_token.length
         }
         last_index = j + 1
       end
@@ -485,13 +485,13 @@ module Zxcvbn
               sequence_space = 26
             end
             return result << {
-              pattern: 'sequence',
-              i: i,
-              j: j,
-              token: password[i..j],
-              sequence_name: sequence_name,
-              sequence_space: sequence_space,
-              ascending: delta > 0
+              "pattern" => 'sequence',
+              "i" =>i,
+              "j" =>j,
+              "token" => password[i..j],
+              "sequence_name" => sequence_name,
+              "sequence_space" => sequence_space,
+              "ascending" => delta > 0
             }
           end
         end
@@ -528,12 +528,12 @@ module Zxcvbn
         while rx_match = regex.match(password, match_index)
           token = rx_match[0]
           matches << {
-            pattern: 'regex',
-            token: token,
-            i: rx_match.begin(0),
-            j: rx_match.end(0) - 1,
-            regex_name: name.to_s,
-            regex_match: rx_match
+            "pattern" => 'regex',
+            "token" => token,
+            "i" => rx_match.begin(0),
+            "j" => rx_match.end(0) - 1,
+            "regex_name" => name,
+            "regex_match" => rx_match
           }
           match_index = rx_match.begin(0) + 1
         end
@@ -603,16 +603,16 @@ module Zxcvbn
 
           # ie, considering '111504', prefer 11-15-04 to 1-1-1504
           # (interpreting '04' as 2004)
-          best_candidate = candidates.min_by{|candidate| (candidate[:year] - Scoring::REFERENCE_YEAR).abs }
+          best_candidate = candidates.min_by{|candidate| (candidate["year"] - Scoring::REFERENCE_YEAR).abs }
           matches << {
-            pattern: 'date',
-            token: token,
-            i: i,
-            j: j,
-            separator: '',
-            year: best_candidate[:year],
-            month: best_candidate[:month],
-            day: best_candidate[:day]
+            "pattern" => 'date',
+            "token" => token,
+            "i" => i,
+            "j" => j,
+            "separator" => '',
+            "year" => best_candidate["year"],
+            "month" => best_candidate["month"],
+            "day" => best_candidate["day"]
           }
         end
       end
@@ -632,14 +632,14 @@ module Zxcvbn
             next
           end
           matches << {
-            pattern: 'date',
-            token: token,
-            i: i,
-            j: j,
-            separator: rx_match[2],
-            year: dmy[:year],
-            month: dmy[:month],
-            day: dmy[:day]
+            "pattern" => 'date',
+            "token" => token,
+            "i" => i,
+            "j" => j,
+            "separator" => rx_match[2],
+            "year" => dmy["year"],
+            "month" => dmy["month"],
+            "day" => dmy["day"]
           }
         end
       end
@@ -652,7 +652,7 @@ module Zxcvbn
       # to reduce noise, remove date matches that are strict substrings of others
       return sorted(matches.uniq.select do |match|
         matches.find do |other_match|
-          other_match[:i] <= match[:i] && other_match[:j] >= match[:j]
+          other_match["i"] <= match["i"] && other_match["j"] >= match["j"]
         end
       end)
     end
@@ -699,9 +699,9 @@ module Zxcvbn
           dm = map_ints_to_dm(rest)
           if dm
             return {
-              year: y,
-              month: dm[:month],
-              day: dm[:day]
+              "year" => y,
+              "month" => dm["month"],
+              "day" => dm["day"]
             }
           else
             # for a candidate that includes a four-digit year,
@@ -719,9 +719,9 @@ module Zxcvbn
         if dm
           y = two_to_four_digit_year(y)
           return {
-            year: y,
-            month: dm[:month],
-            day: dm[:day]
+            "year" => y,
+            "month" => dm["month"],
+            "day" => dm["day"]
           }
         end
       end
@@ -731,8 +731,8 @@ module Zxcvbn
       [ints, ints.reverse].each do |(d, m)|
         if (1 <= d && d <= 31) && (1 <= m && m <= 12)
           return {
-            day: d,
-            month: m
+            "day" => d,
+            "month" => m
           }
         end
       end

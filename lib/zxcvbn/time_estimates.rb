@@ -4,10 +4,10 @@ module Zxcvbn
   module TimeEstimates
     def self.estimate_attack_times(guesses)
       crack_times_seconds = {
-        online_throttling_100_per_hour: guesses / (100.0 / 3600.0),
-        online_no_throttling_10_per_second: guesses / 10.0,
-        offline_slow_hashing_1e4_per_second: guesses / 1e4,
-        offline_fast_hashing_1e10_per_second: guesses / 1e10
+        "online_throttling_100_per_hour" => guesses / (100.0 / 3600.0),
+        "online_no_throttling_10_per_second" => guesses / 10.0,
+        "offline_slow_hashing_1e4_per_second" => guesses / 1e4,
+        "offline_fast_hashing_1e10_per_second" => guesses / 1e10
       }
       crack_times_display = {};
       crack_times_seconds.each do |scenario, seconds|
@@ -15,9 +15,9 @@ module Zxcvbn
       end
 
       return {
-        crack_times_seconds: crack_times_seconds,
-        crack_times_display: crack_times_display,
-        score: guesses_to_score(guesses),
+        "crack_times_seconds" => crack_times_seconds,
+        "crack_times_display" => crack_times_display,
+        "score" => guesses_to_score(guesses),
       }
     end
 
