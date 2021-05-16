@@ -122,7 +122,7 @@ module Zxcvbn
 
     def self.sorted(matches)
       # sort on i primary, j secondary
-      matches.sort_by{|match| [match["i"], match["j"]] }
+      matches.sort_by!{|match| [match["i"], match["j"]] }
     end
 
     # ------------------------------------------------------------------------------
@@ -130,9 +130,9 @@ module Zxcvbn
     # ------------------------------------------------------------------------------
     def self.omnimatch(password)
       matches = []
-      matchers = [method(:dictionary_match), method(:reverse_dictionary_match), method(:l33t_match), method(:spatial_match), method(:repeat_match), method(:sequence_match), method(:regex_match), method(:date_match)]
+      matchers = [:dictionary_match, :reverse_dictionary_match, :l33t_match, :spatial_match, :repeat_match, :sequence_match, :regex_match, :date_match]
       matchers.each do |matcher|
-        matches += matcher.call(password)
+        matches += send(matcher, password)
       end
       return sorted(matches)
     end
@@ -297,7 +297,7 @@ module Zxcvbn
           match["l33t"] = true;
           match["token"] = token;
           match["sub"] = match_sub;
-          match["sub_display"] = results = match_sub.map {|k, v| "#{k} -> #{v}" }.join(", ")
+          match["sub_display"] = results = match_sub.sort_by{|k, v| k}.to_h.map {|k, v| "#{k} -> #{v}" }.join(", ")
           matches << match
         end
       end
@@ -324,7 +324,8 @@ module Zxcvbn
 
     def self.spatial_match_helper(password, graph, graph_name)
       matches = []
-      (0...password.length).each do |i|
+      i = 0
+      while i < password.length - 1
         j = i + 1
         last_direction = nil
         turns = 0
@@ -375,7 +376,7 @@ module Zxcvbn
                 "pattern" => 'spatial',
                 "i" => i,
                 "j" => j - 1,
-                "token" => password[i..j],
+                "token" => password[i...j],
                 "graph" => graph_name,
                 "turns" => turns,
                 "shifted_count" => shifted_count
