@@ -1,6 +1,3 @@
-require 'mini_racer'
-require 'json'
-
 module ResultHelpers
   def strip_log10(result)
     result.reject!{|k, v| ["guesses_log10", "calc_time"].include?(k) }

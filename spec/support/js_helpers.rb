@@ -1,5 +1,4 @@
 require 'mini_racer'
-require 'json'
 
 module JsHelpers
   def js_ctx
@@ -13,5 +12,9 @@ module JsHelpers
 
   def js_omnimatch(password)
     js_ctx.eval(%Q{matching.omnimatch("#{password.gsub('"', '\"')}")})
+  end
+
+  def js_matcher(matcher, password)
+    js_ctx.eval(%Q{matching['#{matcher}']("#{password.gsub('"', '\"')}")})
   end
 end
