@@ -24,45 +24,45 @@ Or install it yourself as:
 ```
 Zxcvbn.zxcvbn("password")
 => {
-  :password => "pasword",
-  :guesses => 3566,
-  :guesses_log10 => 3.5521813388393357,
-  :sequence => [
+  "password" => "password",
+  "guesses" => 3,
+  "guesses_log10" => 0.47712125471966244,
+  "sequence" => [
     {
-      :pattern => "dictionary",
-      :i => 0,
-      :j => 6,
-      :token => "pasword",
-      :matched_word => "pasword",
-      :rank => 3565,
-      :dictionary_name => "passwords",
-      :reversed => false,
-      :l33t => false,
-      :base_guesses => 3565,
-      :uppercase_variations => 1,
-      :l33t_variations => 1,
-      :guesses => 3565,
-      :guesses_log10 => 3.5520595341878844
+      "pattern" => "dictionary",
+      "i" => 0,
+      "j" => 7,
+      "token" => "password",
+      "matched_word" => "password",
+      "rank" => 2,
+      "dictionary_name" => "passwords",
+      "reversed" => false,
+      "l33t" => false,
+      "base_guesses" => 2,
+      "uppercase_variations" => 1,
+      "l33t_variations" => 1,
+      "guesses" => 2,
+      "guesses_log10" => 0.3010299956639812
     }
   ],
-  :calc_time => 0,
-  :crack_times_seconds => {
-    :online_throttling_100_per_hour => 128376.0,
-    :online_no_throttling_10_per_second => 356.6,
-    :offline_slow_hashing_1e4_per_second => 0.3566,
-    :offline_fast_hashing_1e10_per_second => 3.566e-07
+  "calc_time" => 1,
+  "crack_times_seconds" => {
+    "online_throttling_100_per_hour" => 108.0,
+    "online_no_throttling_10_per_second" => 0.3,
+    "offline_slow_hashing_1e4_per_second" => 0.0003,
+    "offline_fast_hashing_1e10_per_second" => 3.0e-10},
+  "crack_times_display" => {
+    "online_throttling_100_per_hour" => "2 minutes",
+    "online_no_throttling_10_per_second" => "less than a second",
+    "offline_slow_hashing_1e4_per_second" => "less than a second",
+    "offline_fast_hashing_1e10_per_second" => "less than a second"
   },
-  :crack_times_display => {
-    :online_throttling_100_per_hour => "1 day",
-    :online_no_throttling_10_per_second => "6 minutes",
-    :offline_slow_hashing_1e4_per_second => "less than a second",
-    :offline_fast_hashing_1e10_per_second => "less than a second"
-  },
-  :score => 1,
-  :feedback =>
-  {
-    :warning => "This is a very common password",
-    :suggestions => ["Add another word or two. Uncommon words are better."]
+  "score" => 0,
+  "feedback" => {
+    "warning" => "This is a top-10 common password",
+    "suggestions" => [
+      "Add another word or two. Uncommon words are better."
+    ]
   }
 }
 ```
