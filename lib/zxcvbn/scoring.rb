@@ -7,9 +7,9 @@ module Zxcvbn
     def self.calc_average_degree(graph)
       average = 0
       graph.each do |key, neighbors|
-        average += neighbors.count {|n| n }
+        average += neighbors.count {|n| n }.to_f
       end
-      average /= graph.keys.size
+      average /= graph.keys.size.to_f
       return average
     end
 
