@@ -1,7 +1,7 @@
 module ResultHelpers
   def strip_log10(result)
     if result.is_a?(Hash)
-      result.reject!{|k, v| ["guesses_log10", "calc_time"].include?(k) }
+      result.reject!{|k, v| ["guesses_log10", "calc_time", "crack_times_seconds", "crack_times_display"].include?(k) }
       (result["sequence"] || []).each do |m|
         m.reject!{|k, v| k == "guesses_log10"}
         (m["base_matches"] || []).each do |bm|

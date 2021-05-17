@@ -133,12 +133,6 @@ RSpec.describe Zxcvbn do
 
           error = (js_result - ruby_result).abs
           error_margin = error.to_f / js_result.to_f
-          if error_margin > 0.0001
-          # if (js_result != ruby_result)
-            puts args[0]["pattern"]
-            # binding.pry
-            # ruby_result = m.call(*args)
-          end
           expect(error_margin).to be <= 0.0001
           ruby_result # return value (cannot use the word return from here)
         end
@@ -245,7 +239,17 @@ RSpec.describe Zxcvbn do
         it "#zxcvbn produces same output for '#{pw}'" do
           ruby_result = strip_log10 Zxcvbn.zxcvbn(pw)
           js_result = strip_log10 js_zxcvbn(pw)
-          expect(ruby_result).to eq(js_result)
+
+          ruby_sequence_result = ruby_result["sequence"].map{|i| i.reject{|k, v| ["guesses", "sub", "sub_display"].include?(k) }}
+          js_sequence_result = js_result["sequence"].map{|i| i.reject{|k, v| ["guesses", "sub", "sub_display"].include?(k) }}
+          expect(ruby_sequence_result).to eq js_sequence_result
+          ruby_base_result = ruby_result.reject{|k, v| ["sequence", "guesses"].include? k }
+          js_base_result = js_result.reject{|k, v| ["sequence", "guesses"].include? k }
+          expect(ruby_base_result).to eq(js_base_result)
+
+          error = (js_result["guesses"] - ruby_result["guesses"]).abs
+          error_margin = error.to_f / js_result["guesses"].to_f
+          expect(error_margin).to be <= 0.0001
         end
       end
     end
