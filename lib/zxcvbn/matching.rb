@@ -726,6 +726,7 @@ module Zxcvbn
           }
         end
       end
+      return
     end
 
     def self.map_ints_to_dm(ints)

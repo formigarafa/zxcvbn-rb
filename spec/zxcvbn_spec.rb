@@ -98,6 +98,7 @@ RSpec.describe Zxcvbn do
     rtrtrtrtrt
     rtrtrtrtrtrt
     #{Time.now.year}
+    defd12a3f84ff98ae39c9a1dbf31b4bbbfcc189051bff922bb6ffd01360dce24
   PASSWORD_LIST
 
   context "when comparing with js library" do
