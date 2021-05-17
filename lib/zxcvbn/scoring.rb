@@ -24,16 +24,16 @@ module Zxcvbn
     def self.nCk(n, k)
       # http://blog.plover.com/math/choose.html
       if k > n
-        return 0
+        return 0.0
       end
       if k == 0
-        return 1
+        return 1.0
       end
       r = 1.0
       (1..k).each do |d|
         r *= n
         r /= d
-        n -= 1
+        n -= 1.0
       end
       return r
     end
@@ -267,7 +267,7 @@ module Zxcvbn
         MIN_SUBMATCH_GUESSES_MULTI_CHAR + 1
       end
 
-      [guesses, min_guesses].max
+      [guesses, min_guesses].max.to_f
     end
 
     def self.repeat_guesses(match)
@@ -346,14 +346,14 @@ module Zxcvbn
         s = KEYPAD_STARTING_POSITIONS;
         d = KEYPAD_AVERAGE_DEGREE;
       end
-      guesses = 0
+      guesses = 0.0
       ll = match["token"].length
       t = match["turns"]
       # estimate the number of possible patterns w/ length ll or less with t turns or less.
       (2..ll).each do |i|
         possible_turns = [t, i - 1].min
         (1..possible_turns).each do |j|
-          guesses += nCk(i - 1, j - 1) * s * (d ** j)
+          guesses += nCk((i - 1).to_f, (j - 1).to_f) * s.to_f * (d.to_f ** j.to_f)
         end
       end
       # add extra guesses for shifted keys. (% instead of 5, A instead of a.)
@@ -366,7 +366,7 @@ module Zxcvbn
         else
           shifted_variations = 0
           (1..[ss, uu].min).each do |i|
-            shifted_variations += nCk(ss + uu, i)
+            shifted_variations += nCk((ss + uu).to_f, i.to_f)
           end
           guesses *= shifted_variations
         end

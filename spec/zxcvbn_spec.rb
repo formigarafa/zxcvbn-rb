@@ -128,7 +128,7 @@ RSpec.describe Zxcvbn do
         allow(Zxcvbn::Scoring).to receive(:estimate_guesses).and_wrap_original do |m, *args|
           js_result = js_estimate_guesses(*args)
           ruby_result = m.call(*args)
-          expect(ruby_result).to eq(js_result)
+          expect(ruby_result).to be_within(0.001).of(js_result)
           ruby_result
         end
       end
@@ -174,7 +174,6 @@ RSpec.describe Zxcvbn do
     end
 
     it "spatial_guesses" do
-      {token: "zxcvbn", graph: "qwerty", turns: 1, shifted_count: 0}
       match = {
         "token" => 'zxcvbn',
         "graph" => 'qwerty',
@@ -182,7 +181,48 @@ RSpec.describe Zxcvbn do
         "shifted_count" => 0,
       }
       base_guesses = Zxcvbn::Scoring::KEYBOARD_STARTING_POSITIONS * Zxcvbn::Scoring::KEYBOARD_AVERAGE_DEGREE * (match["token"].length - 1)
-      expect(Zxcvbn::Scoring.spatial_guesses(match)).to eq(base_guesses)
+      msg = "with no turns or shifts, guesses is starts * degree * (len-1)"
+      expect(Zxcvbn::Scoring.spatial_guesses(match)).to eq(base_guesses), msg
+
+      match.delete "guesses"
+      match["token"] = 'ZxCvbn'
+      match["shifted_count"] = 2
+      shifted_guesses = base_guesses * (Zxcvbn::Scoring.nCk(6, 2) + Zxcvbn::Scoring.nCk(6, 1))
+      msg = "guesses is added for shifted keys, similar to capitals in dictionary matching"
+      expect(Zxcvbn::Scoring.spatial_guesses(match)).to eq(shifted_guesses), msg
+
+      match.delete "guesses"
+      match["token"] = 'ZXCVBN'
+      match["shifted_count"] = 6
+      shifted_guesses = base_guesses * 2
+      msg = "when everything is shifted, guesses are doubled"
+      expect(Zxcvbn::Scoring.spatial_guesses(match)).to eq(shifted_guesses), msg
+
+      match = {
+        "token" => 'zxcft6yh',
+        "graph" => 'qwerty',
+        "turns" => 3,
+        "shifted_count" => 0
+      }
+      guesses = 0
+      ll = match["token"].length
+      s = Zxcvbn::Scoring::KEYBOARD_STARTING_POSITIONS
+      d = Zxcvbn::Scoring::KEYBOARD_AVERAGE_DEGREE
+      (2..ll).each do |i|
+        (1..[match["turns"], i-1].min).each do |j|
+          guesses += Zxcvbn::Scoring.nCk(i-1, j-1) * s * (d ** j)
+        end
+      end
+      msg = "spatial guesses accounts for turn positions, directions and starting keys"
+      expect(Zxcvbn::Scoring.spatial_guesses(match)).to eq(guesses), msg
+
+      match = {
+        "token" => "zxcvbn",
+        "graph" => "qwerty",
+        "turns" => 1,
+        "shifted_count" => 0,
+      }
+      expect(Zxcvbn::Scoring.spatial_guesses(match)).to eq(2160.0000000000005)
     end
 
     context "when running #zxcvbn" do
