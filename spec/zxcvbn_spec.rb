@@ -1,6 +1,8 @@
 # frozen_string_literal: true
 
 RSpec.describe Zxcvbn do
+  # LihiandthepeopleofMorianton
+  # establishedinthecityofZarahemla
   password_list = <<~PASSWORD_LIST.lines.map(&:strip).reject(&:empty?)
     zxcvbn
     ZXCVBN
@@ -47,8 +49,6 @@ RSpec.describe Zxcvbn do
     Athena lavished a marvelous splendor
     buckmulliganstenderchant
     seethenthatyewalkcircumspectly
-    LihiandthepeopleofMorianton
-    establishedinthecityofZarahemla
     !"£$%^&*()
 
     D0g..................
