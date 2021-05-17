@@ -99,6 +99,7 @@ RSpec.describe Zxcvbn do
     rtrtrtrtrtrt
     #{Time.now.year}
     defd12a3f84ff98ae39c9a1dbf31b4bbbfcc189051bff922bb6ffd01360dce24
+    5372fb692cbd0e9d7e9d54680bd0a5e34b9acb1ca036865e813a8646eea8b4fe
   PASSWORD_LIST
 
   context "when comparing with js library" do
@@ -129,13 +130,13 @@ RSpec.describe Zxcvbn do
         allow(Zxcvbn::Scoring).to receive(:estimate_guesses).and_wrap_original do |m, *args|
           js_result = js_estimate_guesses(*args)
           ruby_result = m.call(*args)
-          expect(ruby_result).to be_within(0.001).of(js_result)
+          error_margin = js_result * 0.0001
+          expect(ruby_result).to be_within(error_margin).of(js_result)
           ruby_result
         end
       end
 
       password_list.each do |pw|
-      # ["2001"].each do |pw|
         it "#estimate_guesses produces same output for '#{pw}'" do
           matches = Zxcvbn::Matching.omnimatch(pw)
           Zxcvbn::Scoring.most_guessable_match_sequence(pw, matches)
