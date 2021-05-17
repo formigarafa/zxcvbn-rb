@@ -130,9 +130,17 @@ RSpec.describe Zxcvbn do
         allow(Zxcvbn::Scoring).to receive(:estimate_guesses).and_wrap_original do |m, *args|
           js_result = js_estimate_guesses(*args)
           ruby_result = m.call(*args)
-          error_margin = js_result * 0.0001
-          expect(ruby_result).to be_within(error_margin).of(js_result)
-          ruby_result
+
+          error = (js_result - ruby_result).abs
+          error_margin = error.to_f / js_result.to_f
+          if error_margin > 0.0001
+          # if (js_result != ruby_result)
+            puts args[0]["pattern"]
+            # binding.pry
+            # ruby_result = m.call(*args)
+          end
+          expect(error_margin).to be <= 0.0001
+          ruby_result # return value (cannot use the word return from here)
         end
       end
 
@@ -154,8 +162,9 @@ RSpec.describe Zxcvbn do
           expect(ruby_result["sequence"]).to eq js_result["sequence"]
           ruby_base_result = ruby_result.reject{|k, v| ["sequence", "guesses"].include? k }
           js_base_result = js_result.reject{|k, v| ["sequence", "guesses"].include? k }
-          error_margin = js_result["guesses"] * 0.0001
-          expect(ruby_result["guesses"]).to be_within(error_margin).of(js_result["guesses"])
+          error = (js_result["guesses"] - ruby_result["guesses"]).abs
+          error_margin = error.to_f / js_result["guesses"].to_f
+          expect(error_margin).to be <= 0.0001
         end
       end
     end

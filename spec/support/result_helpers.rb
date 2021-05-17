@@ -4,6 +4,10 @@ module ResultHelpers
       result.reject!{|k, v| ["guesses_log10", "calc_time"].include?(k) }
       (result["sequence"] || []).each do |m|
         m.reject!{|k, v| k == "guesses_log10"}
+        (m["base_matches"] || []).each do |bm|
+          bm.reject!{|k, v| k == "guesses_log10"}
+        end
+        (m["base_matches"] || []).uniq!
       end
       (result["sequence"] || []).uniq!
     else
