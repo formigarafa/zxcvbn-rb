@@ -153,11 +153,19 @@ RSpec.describe Zxcvbn do
           matches = Zxcvbn::Matching.omnimatch(pw)
           ruby_result = strip_log10 Zxcvbn::Scoring.most_guessable_match_sequence(pw, matches)
           js_result = strip_log10 js_most_guessable_match_sequence(pw, matches)
+          # if ruby_result["sequence"] != js_result["sequence"]
+          #   binding.pry
+          # end
           expect(ruby_result["sequence"]).to eq js_result["sequence"]
           ruby_base_result = ruby_result.reject{|k, v| ["sequence", "guesses"].include? k }
           js_base_result = js_result.reject{|k, v| ["sequence", "guesses"].include? k }
           error = (js_result["guesses"] - ruby_result["guesses"]).abs
           error_margin = error.to_f / js_result["guesses"].to_f
+          if error_margin > 0.0001
+            puts args[0]["pattern"]
+            # binding.pry
+          #   ruby_result = m.call(*args)
+          end
           expect(error_margin).to be <= 0.0001
         end
       end
