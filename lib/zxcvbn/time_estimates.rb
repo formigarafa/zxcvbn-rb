@@ -9,36 +9,36 @@ module Zxcvbn
         "offline_slow_hashing_1e4_per_second" => guesses / 1e4,
         "offline_fast_hashing_1e10_per_second" => guesses / 1e10
       }
-      crack_times_display = {};
+      crack_times_display = {}
       crack_times_seconds.each do |scenario, seconds|
         crack_times_display[scenario] = display_time(seconds)
       end
 
-      return {
+      {
         "crack_times_seconds" => crack_times_seconds,
         "crack_times_display" => crack_times_display,
-        "score" => guesses_to_score(guesses),
+        "score" => guesses_to_score(guesses)
       }
     end
 
     def self.guesses_to_score(guesses)
-      delta = 5;
+      delta = 5
       if guesses < 1e3 + delta
         # risky password: "too guessable"
-        return 0
+        0
       elsif guesses < 1e6 + delta
         # modest protection from throttled online attacks: "very guessable"
-        return 1
+        1
       elsif guesses < 1e8 + delta
         # modest protection from unthrottled online attacks: "somewhat guessable"
-        return 2
+        2
       elsif guesses < 1e10 + delta
         # modest protection from offline attacks: "safely unguessable"
         # assuming a salted, slow hash function like bcrypt, scrypt, PBKDF2, argon, etc
-        return 3
+        3
       else
         # strong protection from offline attacks under same scenario: "very unguessable"
-        return 4
+        4
       end
     end
 
@@ -50,7 +50,7 @@ module Zxcvbn
       year = month * 12
       century = year * 100
       display_num, display_str = if seconds < 1
-        [nil, 'less than a second']
+        [nil, "less than a second"]
       elsif seconds < minute
         base = seconds.round
         [base, "#{base} second"]
@@ -70,11 +70,9 @@ module Zxcvbn
         base = (seconds / year).round
         [base, "#{base} year"]
       else
-        [nil, 'centuries']
+        [nil, "centuries"]
       end
-      if display_num && display_num != 1
-        display_str += 's'
-      end
+      display_str += "s" if display_num && display_num != 1
       display_str
     end
   end

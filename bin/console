@@ -14,5 +14,5 @@ require "zxcvbn"
 # require "irb"
 # IRB.start(__FILE__)
 
-require 'pry'
+require "pry"
 Pry.start("main")

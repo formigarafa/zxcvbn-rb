@@ -1,9 +1,9 @@
 # frozen_string_literal: true
 
-require 'bundler/setup'
+require "bundler/setup"
 require "pry-byebug"
 
-Dir[Pathname.new(File.expand_path('../', __FILE__)).join('support/**/*.rb')].each {|f| require f}
+Dir[Pathname.new(File.expand_path(__dir__)).join("support/**/*.rb")].sort.each { |f| require f }
 
 RSpec.configure do |config|
   config.include JsHelpers

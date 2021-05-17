@@ -6,10 +6,10 @@ source "https://rubygems.org"
 gemspec
 
 group :development do
+  gem "mini_racer"
   gem "rake", "~> 13.0"
   gem "rspec", "~> 3.0"
   gem "rubocop", "~> 1.7"
-  gem 'mini_racer'
 
   gem "pry"
   gem "pry-byebug"

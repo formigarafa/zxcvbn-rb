@@ -1,7 +1,30 @@
-inherit_from: .rubocop_todo.yml
-
 AllCops:
   TargetRubyVersion: 2.5
+  NewCops: enable
+
+Layout/EndAlignment:
+  EnforcedStyleAlignWith: start_of_line
+
+Layout/LineLength:
+  Max: 120
+
+Lint/UnderscorePrefixedVariableName:
+  Enabled: false
+
+Metrics:
+  Enabled: false
+
+Naming/VariableNumber:
+  Enabled: false
+
+Style/Documentation:
+  Enabled: false
+
+Style/Next:
+  Enabled: false
+
+Style/NumericPredicate:
+  Enabled: false
 
 Style/StringLiterals:
   Enabled: true
@@ -11,8 +34,11 @@ Style/StringLiteralsInInterpolation:
   Enabled: true
   EnforcedStyle: double_quotes
 
-Layout/LineLength:
-  Max: 120
+Style/NegatedIf:
+  Enabled: false
 
-Metrics:
+Style/SymbolArray:
+  Enabled: false
+
+Style/WordArray:
   Enabled: false

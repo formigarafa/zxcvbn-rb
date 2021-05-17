@@ -14,13 +14,11 @@ module Zxcvbn
   def self.zxcvbn(password, user_inputs = [])
     start = (Time.now.to_f * 1000).to_i
     # reset the user inputs matcher on a per-request basis to keep things stateless
-    sanitized_inputs = [];
+    sanitized_inputs = []
     user_inputs.each do |arg|
-      if arg.is_a?(String) || arg.is_a?(Numeric) || arg == true || arg == false
-        sanitized_inputs << arg.to_s.downcase
-      end
+      sanitized_inputs << arg.to_s.downcase if arg.is_a?(String) || arg.is_a?(Numeric) || arg == true || arg == false
     end
-    Matching.set_user_input_dictionary(sanitized_inputs)
+    Matching.user_input_dictionary = sanitized_inputs
     matches = Matching.omnimatch(password)
     result = Scoring.most_guessable_match_sequence(password, matches)
     result["calc_time"] = (Time.now.to_f * 1000).to_i - start
@@ -29,6 +27,6 @@ module Zxcvbn
       result[prop] = val
     end
     result["feedback"] = Feedback.get_feedback(result["score"], result["sequence"])
-    return result
+    result
   end
 end

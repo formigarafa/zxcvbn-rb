@@ -8,11 +8,11 @@ module Zxcvbn
       ordered_list.each_with_index do |word, idx|
         result[word] = idx + 1
       end
-      return result
+      result
     end
 
-    RANKED_DICTIONARIES = FREQUENCY_LISTS.each_with_object({}) do |(name, lst), o|
-      o[name] = build_ranked_dict(lst);
+    RANKED_DICTIONARIES = FREQUENCY_LISTS.transform_values do |lst|
+      build_ranked_dict(lst)
     end
 
     GRAPHS = {
@@ -20,28 +20,28 @@ module Zxcvbn
       "dvorak" => ADJACENCY_GRAPHS["dvorak"],
       "keypad" => ADJACENCY_GRAPHS["keypad"],
       "mac_keypad" => ADJACENCY_GRAPHS["mac_keypad"]
-    }
+    }.freeze
 
     L33T_TABLE = {
-      "a" => ['4', '@'],
-      "b" => ['8'],
-      "c" => ['(', '{', '[', '<'],
-      "e" => ['3'],
-      "g" => ['6', '9'],
-      "i" => ['1', '!', '|'],
-      "l" => ['1', '|', '7'],
-      "o" => ['0'],
-      "s" => ['$', '5'],
-      "t" => ['+', '7'],
-      "x" => ['%'],
-      "z" => ['2']
-    }
+      "a" => ["4", "@"],
+      "b" => ["8"],
+      "c" => ["(", "{", "[", "<"],
+      "e" => ["3"],
+      "g" => ["6", "9"],
+      "i" => ["1", "!", "|"],
+      "l" => ["1", "|", "7"],
+      "o" => ["0"],
+      "s" => ["$", "5"],
+      "t" => ["+", "7"],
+      "x" => ["%"],
+      "z" => ["2"]
+    }.freeze
 
     REGEXEN = {
       # alpha_lower: /[a-z]/,
       # recent_year: /19\d\d|200\d|201\d/g
       "recent_year" => /19\d\d|200\d|201\d/
-    }
+    }.freeze
 
     DATE_MAX_YEAR = 2050
 
@@ -110,19 +110,19 @@ module Zxcvbn
           6 # 1991 11 11
         ]
       ]
-    }
+    }.freeze
 
     def self.empty(obj)
       obj.empty?
     end
 
     def self.translate(string, chr_map)
-      string.split('').map {|chr| chr_map[chr] || chr}.join("")
+      string.chars.map { |chr| chr_map[chr] || chr }.join
     end
 
     def self.sorted(matches)
       # sort on i primary, j secondary
-      matches.sort_by!{|match| [match["i"], match["j"]] }
+      matches.sort_by! { |match| [match["i"], match["j"]] }
     end
 
     # ------------------------------------------------------------------------------
@@ -130,11 +130,20 @@ module Zxcvbn
     # ------------------------------------------------------------------------------
     def self.omnimatch(password)
       matches = []
-      matchers = [:dictionary_match, :reverse_dictionary_match, :l33t_match, :spatial_match, :repeat_match, :sequence_match, :regex_match, :date_match]
+      matchers = [
+        :dictionary_match,
+        :reverse_dictionary_match,
+        :l33t_match,
+        :spatial_match,
+        :repeat_match,
+        :sequence_match,
+        :regex_match,
+        :date_match
+      ]
       matchers.each do |matcher|
         matches += send(matcher, password)
       end
-      return sorted(matches)
+      sorted(matches)
     end
 
     #-------------------------------------------------------------------------------
@@ -148,11 +157,11 @@ module Zxcvbn
       _ranked_dictionaries.each do |dictionary_name, ranked_dict|
         (0...len).each do |i|
           (i...len).each do |j|
-            if ranked_dict.has_key?(password_lower[i..j])
+            if ranked_dict.key?(password_lower[i..j])
               word = password_lower[i..j]
               rank = ranked_dict[word]
               matches << {
-                "pattern" => 'dictionary',
+                "pattern" => "dictionary",
                 "i" => i,
                 "j" => j,
                 "token" => password[i..j],
@@ -166,7 +175,7 @@ module Zxcvbn
           end
         end
       end
-      return sorted(matches)
+      sorted(matches)
     end
 
     def self.reverse_dictionary_match(password, _ranked_dictionaries = RANKED_DICTIONARIES)
@@ -178,11 +187,11 @@ module Zxcvbn
         # map coordinates back to original string
         match["i"], match["j"] = [password.length - 1 - match["j"], password.length - 1 - match["i"]]
       end
-      return sorted(matches)
+      sorted(matches)
     end
 
-    def self.set_user_input_dictionary(ordered_list)
-      return RANKED_DICTIONARIES['user_inputs'] = build_ranked_dict(ordered_list.dup)
+    def self.user_input_dictionary=(ordered_list)
+      RANKED_DICTIONARIES["user_inputs"] = build_ranked_dict(ordered_list.dup)
     end
 
     #-------------------------------------------------------------------------------
@@ -191,38 +200,31 @@ module Zxcvbn
     # makes a pruned copy of l33t_table that only includes password's possible substitutions
     def self.relevant_l33t_subtable(password, table)
       password_chars = {}
-      password.split('').each do |chr|
+      password.chars.each do |chr|
         password_chars[chr] = true
       end
       subtable = {}
       table.each do |letter, subs|
         relevant_subs = []
         subs.each do |sub|
-          if password_chars[sub]
-            relevant_subs << sub
-          end
+          relevant_subs << sub if password_chars[sub]
         end
-        if !relevant_subs.empty?
-          subtable[letter] = relevant_subs
-        end
+        subtable[letter] = relevant_subs if !relevant_subs.empty?
       end
-      return subtable
+      subtable
     end
 
     # returns the list of possible 1337 replacement dictionaries for a given password
     def self.enumerate_l33t_subs(table)
-      keys = table.keys
-      subs = [[]]
-
-      dedup = -> (subs) do
+      dedup = lambda do |subs|
         deduped = []
         members = {}
         subs.each do |sub|
-          assoc = sub.map {|k, v| [k, v] }
+          assoc = sub.map { |k, v| [k, v] }
           assoc.sort!
-          label = assoc.map{|k, v| "#{k},#{v}"}.join("-")
+          label = assoc.map { |k, v| "#{k},#{v}" }.join("-")
 
-          if !members.has_key?(label)
+          if !members.key?(label)
             members[label] = true
             deduped << sub
           end
@@ -230,23 +232,24 @@ module Zxcvbn
         return deduped
       end
 
-      helper = -> (keys) do
-        if keys.empty?
-          return;
-        end
+      subs = [[]]
+
+      helper = lambda do |keys|
+        return if keys.empty?
+
         first_key = keys[0]
         rest_keys = keys[1..-1]
         next_subs = []
         table[first_key].each do |l33t_chr|
           subs.each do |sub|
-            dup_l33t_index = -1;
+            dup_l33t_index = -1
             (0...sub.length).each do |i|
-              if sub[i][0] === l33t_chr
+              if sub[i][0] == l33t_chr
                 dup_l33t_index = i
                 break
               end
             end
-            if dup_l33t_index === -1
+            if dup_l33t_index == -1
               sub_extension = sub.concat([[l33t_chr, first_key]])
               next_subs << sub_extension
             else
@@ -262,50 +265,49 @@ module Zxcvbn
         helper.call(rest_keys)
       end
 
+      keys = table.keys
       helper.call(keys)
 
       sub_dicts = [] # convert from assoc lists to dicts
       subs.each do |sub|
         sub_dict = {}
         sub.each do |(l33t_chr, chr)|
-          sub_dict[l33t_chr] = chr;
+          sub_dict[l33t_chr] = chr
         end
         sub_dicts << sub_dict
       end
 
-      return sub_dicts
+      sub_dicts
     end
 
     def self.l33t_match(password, _ranked_dictionaries = RANKED_DICTIONARIES, _l33t_table = L33T_TABLE)
       matches = []
       enumerate_l33t_subs(relevant_l33t_subtable(password, _l33t_table)).each do |sub|
-        if empty(sub) # corner case: password has no relevant subs.
-          break
-        end
+        break if empty(sub) # corner case: password has no relevant subs.
+
         subbed_password = translate(password, sub)
         dictionary_match(subbed_password, _ranked_dictionaries).each do |match|
           token = password[match["i"]..match["j"]]
           if token.downcase == match["matched_word"]
             next # only return the matches that contain an actual substitution
           end
+
           match_sub = {} # subset of mappings in sub that are in use for this match
           sub.each do |subbed_chr, chr|
-            if token.index(subbed_chr)
-              match_sub[subbed_chr] = chr
-            end
+            match_sub[subbed_chr] = chr if token.index(subbed_chr)
           end
-          match["l33t"] = true;
-          match["token"] = token;
-          match["sub"] = match_sub;
-          match["sub_display"] = results = match_sub.map {|k, v| "#{k} -> #{v}" }.join(", ")
+          match["l33t"] = true
+          match["token"] = token
+          match["sub"] = match_sub
+          match["sub_display"] = match_sub.map { |k, v| "#{k} -> #{v}" }.join(", ")
           matches << match
         end
       end
-      return sorted(matches.select do |match|
+      sorted(matches.select do |match|
         # filter single-character l33t matches to reduce noise.
         # otherwise '1' matches 'i', '4' matches 'a', both very common English words
         # with low dictionary rank.
-        match["token"].length > 1;
+        match["token"].length > 1
       end)
     end
 
@@ -317,10 +319,10 @@ module Zxcvbn
       _graphs.each do |graph_name, graph|
         matches += spatial_match_helper(password, graph, graph_name)
       end
-      return sorted(matches)
+      sorted(matches)
     end
 
-    SHIFTED_RX = /[~!@#$%^&*()_+QWERTYUIOP{}|ASDFGHJKL:"ZXCVBNM<>?]/
+    SHIFTED_RX = /[~!@#$%^&*()_+QWERTYUIOP{}|ASDFGHJKL:"ZXCVBNM<>?]/.freeze
 
     def self.spatial_match_helper(password, graph, graph_name)
       matches = []
@@ -329,11 +331,11 @@ module Zxcvbn
         j = i + 1
         last_direction = nil
         turns = 0
-        if (graph_name == 'qwerty' || graph_name == 'dvorak') && SHIFTED_RX.match?(password[i])
+        shifted_count = if ["qwerty", "dvorak"].include?(graph_name) && SHIFTED_RX.match?(password[i])
           # initial character is shifted
-          shifted_count = 1
+          1
         else
-          shifted_count = 0
+          0
         end
         loop do
           prev_char = password[j - 1]
@@ -346,7 +348,7 @@ module Zxcvbn
             cur_char = password[j]
             adjacents.each do |adj|
               cur_direction += 1
-              if adj && adj.index(cur_char)
+              if adj&.index(cur_char)
                 found = true
                 found_direction = cur_direction
                 if adj.index(cur_char) == 1
@@ -373,7 +375,7 @@ module Zxcvbn
             # otherwise push the pattern discovered so far, if any...
             if j - i > 2 # don't consider length 1 or 2 chains.
               matches << {
-                "pattern" => 'spatial',
+                "pattern" => "spatial",
                 "i" => i,
                 "j" => j - 1,
                 "token" => password[i...j],
@@ -388,7 +390,7 @@ module Zxcvbn
           end
         end
       end
-      return matches
+      matches
     end
 
     #-------------------------------------------------------------------------------
@@ -404,11 +406,10 @@ module Zxcvbn
         # greedy_last_index = lazy_last_index = last_index
         greedy_match = greedy.match(password, last_index)
         lazy_match = lazy.match(password, last_index)
-        if !greedy_match
-          break
-        end
+        break if !greedy_match
+
         # coverage ???
-        if (greedy_match[0].length > lazy_match[0].length)
+        if greedy_match[0].length > lazy_match[0].length
           # greedy beats lazy for 'aabaab'
           #   greedy: [aabaab, aab]
           #   lazy:   [aa,     a]
@@ -422,16 +423,17 @@ module Zxcvbn
           # lazy beats greedy for 'aaaaa'
           #   greedy: [aaaa,  aa]
           #   lazy:   [aaaaa, a]
-          match = lazy_match;
-          base_token = match[1];
+          match = lazy_match
+          base_token = match[1]
         end
-        i, j = [match.begin(0), match.end(0) - 1]
+        i = match.begin(0)
+        j = match.end(0) - 1
         # recursively match and score the base string
         base_analysis = Scoring.most_guessable_match_sequence(base_token, omnimatch(base_token))
         base_matches = base_analysis["sequence"]
         base_guesses = base_analysis["guesses"]
         matches << {
-          "pattern" => 'repeat',
+          "pattern" => "repeat",
           "i" => i,
           "j" => j,
           "token" => match[0],
@@ -442,7 +444,7 @@ module Zxcvbn
         }
         last_index = j + 1
       end
-      return matches
+      matches
     end
 
     MAX_DELTA = 5
@@ -460,41 +462,39 @@ module Zxcvbn
 
       # expected result:
       # [(i, j, delta), ...] = [(0, 3, 1), (5, 7, -2), (8, 9, 1)]
-      if password.length == 1
-        return []
-      end
+      return [] if password.length == 1
+
       result = []
 
-      update = -> (i, j, delta) do
+      update = lambda do |i, j, delta|
         delta ||= 0
-        if j - i > 1 || (delta).abs == 1
-          if 0 < delta.abs && delta.abs <= MAX_DELTA
-            token = password[i..j]
-            if /^[a-z]+$/.match?(token)
-              sequence_name = 'lower'
-              sequence_space = 26
-            elsif /^[A-Z]+$/.match?(token)
-              sequence_name = 'upper'
-              sequence_space = 26
-            elsif /^\d+$/.match?(token)
-              sequence_name = 'digits'
-              sequence_space = 10
-            else
-              # conservatively stick with roman alphabet size.
-              # (this could be improved)
-              sequence_name = 'unicode'
-              sequence_space = 26
-            end
-            return result << {
-              "pattern" => 'sequence',
-              "i" =>i,
-              "j" =>j,
-              "token" => password[i..j],
-              "sequence_name" => sequence_name,
-              "sequence_space" => sequence_space,
-              "ascending" => delta > 0
-            }
+        if (j - i > 1 || delta.abs == 1) && (delta.abs > 0 && delta.abs <= MAX_DELTA)
+          token = password[i..j]
+          case token
+          when /^[a-z]+$/
+            sequence_name = "lower"
+            sequence_space = 26
+          when /^[A-Z]+$/
+            sequence_name = "upper"
+            sequence_space = 26
+          when /^\d+$/
+            sequence_name = "digits"
+            sequence_space = 10
+          else
+            # conservatively stick with roman alphabet size.
+            # (this could be improved)
+            sequence_name = "unicode"
+            sequence_space = 26
           end
+          return result << {
+            "pattern" => "sequence",
+            "i" => i,
+            "j" => j,
+            "token" => password[i..j],
+            "sequence_name" => sequence_name,
+            "sequence_space" => sequence_space,
+            "ascending" => delta > 0
+          }
         end
       end
 
@@ -505,16 +505,15 @@ module Zxcvbn
       (1...password.length).each do |k|
         delta = password[k].ord - password[k - 1].ord
         last_delta ||= delta
-        if delta == last_delta
-          next
-        end
+        next if delta == last_delta
+
         j = k - 1
         update.call(i, j, last_delta)
         i = j
         last_delta = delta
       end
       update.call(i, password.length - 1, last_delta)
-      return result
+      result
     end
 
     #-------------------------------------------------------------------------------
@@ -525,10 +524,10 @@ module Zxcvbn
       _regexen.each do |name, regex|
         # regex.lastIndex = 0; # keeps regex_match stateless
         match_index = 0
-        while rx_match = regex.match(password, match_index)
+        while (rx_match = regex.match(password, match_index))
           token = rx_match[0]
           matches << {
-            "pattern" => 'regex',
+            "pattern" => "regex",
             "token" => token,
             "i" => rx_match.begin(0),
             "j" => rx_match.end(0) - 1,
@@ -538,7 +537,7 @@ module Zxcvbn
           match_index = rx_match.begin(0) + 1
         end
       end
-      return sorted(matches)
+      sorted(matches)
     end
 
     #-------------------------------------------------------------------------------
@@ -552,7 +551,7 @@ module Zxcvbn
       #   a month between 1 and 12,
       #   a day between 1 and 31.
 
-      # note: this isn't true date parsing in that "feb 31st" is allowed,
+      # NOTE: this isn't true date parsing in that "feb 31st" is allowed,
       # this doesn't check for leap years, etc.
 
       # recipe:
@@ -560,7 +559,7 @@ module Zxcvbn
       # onto month-day-year to filter the maybe-dates into dates.
       # finally, remove matches that are substrings of other matches to reduce noise.
 
-      # note: instead of using a lazy or greedy regex to find many dates over the full string,
+      # NOTE: instead of using a lazy or greedy regex to find many dates over the full string,
       # this uses a ^...$ regex against every substring of the password -- less performant but leads
       # to every possible date match.
       matches = []
@@ -575,41 +574,36 @@ module Zxcvbn
       #   ( \d{1,4} )    # day, month, year
       #   $
       # }
-      maybe_date_with_separator = /^(\d{1,4})([\s\/\\_.-])(\d{1,2})\2(\d{1,4})$/
+      maybe_date_with_separator = %r{^(\d{1,4})([\s/\\_.-])(\d{1,2})\2(\d{1,4})$}
 
       (0..(password.length - 4)).each do |i|
         (i + 3..i + 7).each do |j|
-          if j >= password.length
-            break
-          end
+          break if j >= password.length
+
           token = password[i..j]
-          if !maybe_date_no_separator.match(token)
-            next
-          end
+          next if !maybe_date_no_separator.match(token)
+
           candidates = []
           DATE_SPLITS[token.length].each do |(k, l)|
             dmy = map_ints_to_dmy([token[0...k].to_i, token[k...l].to_i, token[l..-1].to_i])
-            if dmy
-              candidates << dmy
-            end
+            candidates << dmy if dmy
           end
 
-          if candidates.empty?
-            next
-          end
+          next if candidates.empty?
+
           # at this point: different possible dmy mappings for the same i,j substring.
           # match the candidate date that likely takes the fewest guesses: a year closest to 2000.
           # (scoring.REFERENCE_YEAR).
 
           # ie, considering '111504', prefer 11-15-04 to 1-1-1504
           # (interpreting '04' as 2004)
-          best_candidate = candidates.min_by{|candidate| (candidate["year"] - Scoring::REFERENCE_YEAR).abs }
+          best_candidate = candidates.min_by { |candidate| (candidate["year"] - Scoring::REFERENCE_YEAR).abs }
           matches << {
-            "pattern" => 'date',
+            "pattern" => "date",
             "token" => token,
             "i" => i,
             "j" => j,
-            "separator" => '',
+            "separator" => "",
             "year" => best_candidate["year"],
             "month" => best_candidate["month"],
             "day" => best_candidate["day"]
@@ -619,20 +613,17 @@ module Zxcvbn
       # dates with separators are between length 6 '1/1/91' and 10 '11/11/1991'
       (0..password.length - 6).each do |i|
         (i + 5..i + 9).each do |j|
-          if j >= password.length
-            break
-          end
+          break if j >= password.length
+
           token = password[i..j]
           rx_match = maybe_date_with_separator.match(token)
-          if !rx_match
-            next
-          end
+          next if !rx_match
+
           dmy = map_ints_to_dmy([rx_match[1].to_i, rx_match[3].to_i, rx_match[4].to_i])
-          if !dmy
-            next
-          end
+          next if !dmy
+
           matches << {
-            "pattern" => 'date',
+            "pattern" => "date",
             "token" => token,
             "i" => i,
             "j" => j,
@@ -650,7 +641,7 @@ module Zxcvbn
       # 5(!) other date matches: 15_06_04, 5_06_04, ..., even 2015 (matched as 5/1/2020)
 
       # to reduce noise, remove date matches that are strict substrings of others
-      return sorted(matches.uniq.reject do |match|
+      sorted(matches.uniq.reject do |match|
         matches.find do |other_match|
           (match["i"] > other_match["i"] && match["j"] <= other_match["j"]) ||
           (match["i"] >= other_match["i"] && match["j"] < other_match["j"])
@@ -667,55 +658,44 @@ module Zxcvbn
       #   2 ints are over 31, the max allowable day
       #   2 ints are zero
       #   all ints are over 12, the max allowable month
-      if ints[1] > 31 || ints[1] <= 0
-        return
-      end
+      return if ints[1] > 31 || ints[1] <= 0
+
       over_12 = 0
       over_31 = 0
       under_1 = 0
       ints.each do |int|
-        if (99 < int && int < DATE_MIN_YEAR) || int > DATE_MAX_YEAR
-          return
-        end
-        if int > 31
-          over_31 += 1
-        end
-        if int > 12
-          over_12 += 1
-        end
-        if int <= 0
-          under_1 += 1
-        end
+        return nil if (int > 99 && int < DATE_MIN_YEAR) || int > DATE_MAX_YEAR
+
+        over_31 += 1 if int > 31
+        over_12 += 1 if int > 12
+        under_1 += 1 if int <= 0
       end
-      if over_31 >= 2 || over_12 === 3 || under_1 >= 2
-        return
-      end
+      return if over_31 >= 2 || over_12 == 3 || under_1 >= 2
 
       possible_year_splits = [
         [ints[2], ints[0..1]], # year last
-        [ints[0], ints[1..2]], # year first
+        [ints[0], ints[1..2]] # year first
       ]
       possible_year_splits.each do |(y, rest)|
         if DATE_MIN_YEAR <= y && y <= DATE_MAX_YEAR
           dm = map_ints_to_dm(rest)
-          if dm
-            return {
-              "year" => y,
-              "month" => dm["month"],
-              "day" => dm["day"]
-            }
-          else
-            # for a candidate that includes a four-digit year,
-            # when the remaining ints don't match to a day and month,
-            # it is not a date.
-            return
-          end
+
+          # for a candidate that includes a four-digit year,
+          # when the remaining ints don't match to a day and month,
+          # it is not a date.
+          return nil if !dm
+
+          return {
+            "year" => y,
+            "month" => dm["month"],
+            "day" => dm["day"]
+          }
         end
       end
 
       # given no four-digit year, two digit years are the most flexible int to match, so
       # try to parse a day-month out of ints[0..1] or ints[1..0]
-      possible_year_splits.each do |(y, rest)|
+      possible_year_splits.each do |(y, rest)| # rubocop:disable Style/CombinableLoops
         dm = map_ints_to_dm(rest)
         if dm
           y = two_to_four_digit_year(y)
@@ -726,30 +706,30 @@ module Zxcvbn
           }
         end
       end
-      return
+      nil
     end
 
     def self.map_ints_to_dm(ints)
       [ints, ints.reverse].each do |(d, m)|
-        if (1 <= d && d <= 31) && (1 <= m && m <= 12)
+        if (d >= 1 && d <= 31) && (m >= 1 && m <= 12)
           return {
             "day" => d,
             "month" => m
           }
         end
       end
-      return nil
+      nil
     end
 
     def self.two_to_four_digit_year(year)
       if year > 99
-        return year
+        year
       elsif year > 50
         # 87 -> 1987
-        return year + 1900
+        year + 1900
       else
         # 15 -> 2015
-        return year + 2000
+        year + 2000
       end
     end
   end
