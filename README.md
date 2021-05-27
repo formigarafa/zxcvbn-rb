@@ -1,7 +1,8 @@
 # Zxcvbn
 
-This is a direct Ruby port of Dropbox's [zxcvbn.js][zxcvbn.js] JavaScript library.
-The intention is to provide all the same features and same results as close to the original JS fucntion would do.
+Ruby port of Dropbox's [zxcvbn.js][zxcvbn.js] JavaScript library running completely in Ruby (no need to load execjs or libv8).
+
+The intention is to provide an option 100% Ruby solution with all the same features and same results (or as close to the original JS function as possible).
 
 ## Installation
 
