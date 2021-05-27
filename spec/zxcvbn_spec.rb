@@ -1,8 +1,6 @@
 # frozen_string_literal: true
 
 RSpec.describe Zxcvbn do
-  # LihiandthepeopleofMorianton
-  # establishedinthecityofZarahemla
   password_list = <<~PASSWORD_LIST.lines.map(&:strip).reject(&:empty?)
     zxcvbn
     ZXCVBN
@@ -100,6 +98,13 @@ RSpec.describe Zxcvbn do
     #{Time.now.year}
     defd12a3f84ff98ae39c9a1dbf31b4bbbfcc189051bff922bb6ffd01360dce24
     5372fb692cbd0e9d7e9d54680bd0a5e34b9acb1ca036865e813a8646eea8b4fe
+
+    vika20021994
+    password
+    vkeuvuxkskf37w
+    Obama!123
+    LihiandthepeopleofMorianton
+    establishedinthecityofZarahemla
   PASSWORD_LIST
 
   context "when comparing with js library" do

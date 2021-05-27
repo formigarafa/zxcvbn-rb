@@ -125,6 +125,10 @@ module Zxcvbn
         optimal["g"][k][l] = g
         optimal["m"][k][l] = m
         optimal["pi"][k][l] = pi
+
+        optimal["g"][k] = optimal["g"][k].sort.to_h
+        optimal["m"][k] = optimal["m"][k].sort.to_h
+        optimal["pi"][k] = optimal["pi"][k].sort.to_h
       end
 
       # helper: make bruteforce match objects spanning i to j, inclusive.
@@ -148,7 +152,6 @@ module Zxcvbn
           # leads to new bests.
           m = make_bruteforce_match.call(i, k)
           optimal["m"][i - 1].each do |l, last_m|
-            l = l.to_i
             # corner: an optimal sequence will never have two adjacent bruteforce matches.
             # it is strictly better to have a single bruteforce match spanning the same region:
             # same contribution to the guess product with a lower length.
