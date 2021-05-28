@@ -71,9 +71,9 @@ Zxcvbn.zxcvbn("password")
 }
 ```
 
-### Compatible with `zxcvbn-js`
+### Compatible with `zxcvbn-js` and `zxcvbn-ruby`
 
-This gem include a compatible interface so it can be used as a drop-in substitution for `zxcvbn-js`. You can just call `Zxcvbn.test` or use `Zxcvbn::Tester.new` the same way as you would on `zxcvbn-js`.
+This gem include a compatible interface so it can be used as a drop-in substitution for `zxcvbn-js` or `zxcvbn-ruby`. You can just call `Zxcvbn.test` or use `Zxcvbn::Tester.new` the same way as you would if you were using `zxcvbn-js` or `zxcvbn-ruby`.
 
 ## Development
 
