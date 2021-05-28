@@ -3,7 +3,7 @@
 [![Gem Version](https://badge.fury.io/rb/zxcvbn.svg)](https://badge.fury.io/rb/zxcvbn)
 [![Build Status](https://travis-ci.com/formigarafa/zxcvbn-rb.svg?branch=master)](https://travis-ci.com/formigarafa/zxcvbn-rb)
 
-Ruby port of Dropbox's [zxcvbn.js][zxcvbn.js] JavaScript library running completely in Ruby (no need to load execjs or libv8).
+Ruby port of Dropbox's [zxcvbn.js](https://github.com/dropbox/zxcvbn) JavaScript library running completely in Ruby (no need to load execjs or libv8).
 
 The intention is to provide an option 100% Ruby solution with all the same features and same results (or as close to the original JS function as possible).
 
