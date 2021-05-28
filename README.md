@@ -71,6 +71,10 @@ Zxcvbn.zxcvbn("password")
 }
 ```
 
+### Compatible with `zxcvbn-js`
+
+This gem include a compatible interface so it can be used as a drop-in substitution for `zxcvbn-js`. You can just call `Zxcvbn.test` or use `Zxcvbn::Tester.new` the same way as you would on `zxcvbn-js`.
+
 ## Development
 
 After checking out the repo, run `bin/setup` to install dependencies. Then, run `rake spec` to run the tests. You can also run `bin/console` for an interactive prompt that will allow you to experiment.

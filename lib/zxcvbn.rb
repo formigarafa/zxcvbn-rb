@@ -29,4 +29,14 @@ module Zxcvbn
     result["feedback"] = Feedback.get_feedback(result["score"], result["sequence"])
     result
   end
+
+  def self.test(password, user_inputs = [])
+    OpenStruct.new(Zxcvbn.zxcvbn(password, user_inputs))
+  end
+
+  class Tester
+    def test(password, user_inputs = [])
+      Zxcvbn.test(password, user_inputs)
+    end
+  end
 end
