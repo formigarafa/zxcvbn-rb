@@ -112,10 +112,6 @@ module Zxcvbn
       ]
     }.freeze
 
-    def self.empty(obj)
-      obj.empty?
-    end
-
     def self.translate(string, chr_map)
       string.chars.map { |chr| chr_map[chr] || chr }.join
     end
@@ -283,7 +279,7 @@ module Zxcvbn
     def self.l33t_match(password, _ranked_dictionaries = RANKED_DICTIONARIES, _l33t_table = L33T_TABLE)
       matches = []
       enumerate_l33t_subs(relevant_l33t_subtable(password, _l33t_table)).each do |sub|
-        break if empty(sub) # corner case: password has no relevant subs.
+        break if sub.empty? # corner case: password has no relevant subs.
 
         subbed_password = translate(password, sub)
         dictionary_match(subbed_password, _ranked_dictionaries).each do |match|
