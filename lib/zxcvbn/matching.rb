@@ -246,7 +246,7 @@ module Zxcvbn
               end
             end
             if dup_l33t_index == -1
-              sub_extension = sub.concat([[l33t_chr, first_key]])
+              sub_extension = sub + [[l33t_chr, first_key]]
               next_subs << sub_extension
             else
               sub_alternative = sub.dup
