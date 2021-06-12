@@ -356,10 +356,10 @@ RSpec.describe "spatial guesses" do
       "shifted_count" => 0
     }
     guesses = 0
-    L = match["token"].length
+    ll = match["token"].length
     s = Zxcvbn::Scoring::KEYBOARD_STARTING_POSITIONS
     d = Zxcvbn::Scoring::KEYBOARD_AVERAGE_DEGREE
-    (2..L).each do |i|
+    (2..ll).each do |i|
       (1..[match["turns"], i - 1].min).each do |j|
         guesses += Zxcvbn::Scoring.nck(i - 1, j - 1) * s * (d**j)
       end
