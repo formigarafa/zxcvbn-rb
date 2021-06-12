@@ -21,7 +21,7 @@ def genpws(pattern, prefixes, suffixes)
   result
 end
 
-def check_matches(prefix, it, matches, pattern_names, patterns, ijs, props)
+def check_matches(prefix, rspec_it, matches, pattern_names, patterns, ijs, props)
   if pattern_names.is_a? String
     # shortcut: if checking for a list of the same type of patterns,
     # allow passing a string 'pat' instead of array ['pat', 'pat', ...]
@@ -36,7 +36,7 @@ def check_matches(prefix, it, matches, pattern_names, patterns, ijs, props)
 
   raise "unequal argument lists to check_matches" if !is_equal_len_args
 
-  it.call("#{prefix}: matches.length == #{patterns.length}") do
+  rspec_it.call("#{prefix}: matches.length == #{patterns.length}") do
     expect(matches.length).to eq(patterns.length)
   end
 
@@ -45,22 +45,22 @@ def check_matches(prefix, it, matches, pattern_names, patterns, ijs, props)
     pattern_name = pattern_names[k]
     pattern = patterns[k]
     i, j = ijs[k]
-    it.call("#{prefix}: matches[#{k}].pattern == '#{pattern_name}'") do
+    rspec_it.call("#{prefix}: matches[#{k}].pattern == '#{pattern_name}'") do
       expect(match["pattern"]).to eq(pattern_name)
     end
 
-    it.call("#{prefix}: matches[#{k}] should have [i, j] of [#{i}, #{j}]") do
+    rspec_it.call("#{prefix}: matches[#{k}] should have [i, j] of [#{i}, #{j}]") do
       expect([match["i"], match["j"]]).to eq([i, j])
     end
 
-    it.call("#{prefix}: matches[#{k}].token == '#{pattern}'") do
+    rspec_it.call("#{prefix}: matches[#{k}].token == '#{pattern}'") do
       expect(match["token"]).to eq(pattern)
     end
 
     props.each do |prop_name, prop_list|
       prop_msg = prop_list[k]
       prop_msg = "'#{prop_msg}'" if prop_msg.is_a?(String)
-      it.call("#{prefix}: matches[#{k}].#{prop_name} == #{prop_msg}") do
+      rspec_it.call("#{prefix}: matches[#{k}].#{prop_name} == #{prop_msg}") do
         expect(match[prop_name]).to eq(prop_list[k])
       end
     end
@@ -177,8 +177,8 @@ RSpec.describe "dictionary matching" do
 
   prefixes = ["q", "%%"]
   suffixes = ["%", "qq"]
-  word = "asdf1234&*"
-  genpws(word, prefixes, suffixes).each do |password, i, j|
+  a_word = "asdf1234&*"
+  genpws(a_word, prefixes, suffixes).each do |password, i, j|
     matches = dm.call(password)
     msg = "identifies words surrounded by non-words"
     check_matches(
@@ -186,9 +186,9 @@ RSpec.describe "dictionary matching" do
       method(:it),
       matches,
       "dictionary",
-      [word], [[i, j]],
+      [a_word], [[i, j]],
       {
-        "matched_word" => [word],
+        "matched_word" => [a_word],
         "rank" => [5],
         "dictionary_name" => ["d2"]
       }
@@ -407,16 +407,16 @@ RSpec.describe "spatial matching" do
 
   # for testing, make a subgraph that contains a single keyboard
   _graphs = { "qwerty" => Zxcvbn::ADJACENCY_GRAPHS["qwerty"] }
-  pattern = "6tfGHJ"
-  matches = Zxcvbn::Matching.spatial_match "rz!#{pattern}%z", _graphs
+  a_pattern = "6tfGHJ"
+  matches = Zxcvbn::Matching.spatial_match "rz!#{a_pattern}%z", _graphs
   msg = "matches against spatial patterns surrounded by non-spatial patterns"
   check_matches(
     msg,
     method(:it),
     matches,
     "spatial",
-    [pattern],
-    [[3, 3 + pattern.length - 1]],
+    [a_pattern],
+    [[3, 3 + a_pattern.length - 1]],
     {
       "graph" => ["qwerty"],
       "turns" => [2],
@@ -481,8 +481,8 @@ RSpec.describe "sequence matching" do
 
   prefixes = ["!", "22"]
   suffixes = ["!", "22"]
-  pattern = "jihg"
-  genpws(pattern, prefixes, suffixes).each do |password, i, j|
+  a_pattern = "jihg"
+  genpws(a_pattern, prefixes, suffixes).each do |password, i, j|
     matches = Zxcvbn::Matching.sequence_match password
     msg = "matches embedded sequence patterns #{password}"
     check_matches(
@@ -490,7 +490,7 @@ RSpec.describe "sequence matching" do
       method(:it),
       matches,
       "sequence",
-      [pattern],
+      [a_pattern],
       [[i, j]],
       {
         "sequence_name" => ["lower"],
@@ -702,16 +702,16 @@ RSpec.describe "date matching" do
     )
   end
 
-  password = "111504"
-  matches = Zxcvbn::Matching.date_match password
+  password1 = "111504"
+  matches = Zxcvbn::Matching.date_match password1
   msg = "matches the date with year closest to REFERENCE_YEAR when ambiguous"
   check_matches(
     msg,
     method(:it),
     matches,
     "date",
-    [password],
-    [[0, password.length - 1]],
+    [password1],
+    [[0, password1.length - 1]],
     {
       "separator" => [""],
       "year" => [2004], # picks '04' -> 2004 as year, not '1504'
@@ -758,16 +758,16 @@ RSpec.describe "date matching" do
     )
   end
 
-  password = "02/02/02"
-  matches = Zxcvbn::Matching.date_match password
+  password2 = "02/02/02"
+  matches = Zxcvbn::Matching.date_match password2
   msg = "matches zero-padded dates"
   check_matches(
     msg,
     method(:it),
     matches,
     "date",
-    [password],
-    [[0, password.length - 1]],
+    [password2],
+    [[0, password2.length - 1]],
     {
       "separator" => ["/"],
       "year" => [2002],
