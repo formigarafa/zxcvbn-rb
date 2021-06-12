@@ -11,15 +11,12 @@ module ResultHelpers
         (m["base_matches"] || []).each do |bm|
           bm.reject! { |k, _v| k == "guesses_log10" }
         end
-        (m["base_matches"] || []).uniq!
       end
-      (result["sequence"] || []).uniq!
     else
       result.map do |m|
         (m["base_matches"] || []).each do |bm|
           bm.reject! { |k, _v| k == "guesses_log10" }
         end
-        (m["base_matches"] || []).uniq!
         m.reject! { |k, _v| k == "sub_display" }
       end
       result.uniq!
