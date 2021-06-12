@@ -126,8 +126,8 @@ RSpec.describe Zxcvbn do
       #   context "for matcher #{matcher}" do
       #     password_list.each do |pw|
       #       it "produces same output for '#{pw}'" do
-      #         js_result = strip_log10 js_matcher(matcher, pw)
-      #         ruby_result = strip_log10 Zxcvbn::Matching.send(matcher, pw)
+      #         js_result = strip_precision js_matcher(matcher, pw)
+      #         ruby_result = strip_precision Zxcvbn::Matching.send(matcher, pw)
       #         expect(ruby_result).to contain_exactly(*js_result)
       #       end
       #     end
@@ -137,8 +137,8 @@ RSpec.describe Zxcvbn do
       # context "when running #omnimatch" do
       #   password_list.each do |pw|
       #     it "produces same output for '#{pw}'" do
-      #       ruby_result = strip_log10 Zxcvbn::Matching.omnimatch(pw)
-      #       js_result = strip_log10 js_omnimatch(pw)
+      #       ruby_result = strip_precision Zxcvbn::Matching.omnimatch(pw)
+      #       js_result = strip_precision js_omnimatch(pw)
       #       expect(ruby_result).to contain_exactly(*js_result)
       #     end
       #   end
@@ -170,8 +170,8 @@ RSpec.describe Zxcvbn do
       #     # ["2001"].each do |pw|
       #     it "#most_guessable_match_sequence produces same output for '#{pw}'" do
       #       matches = Zxcvbn::Matching.omnimatch(pw)
-      #       ruby_result = strip_log10 Zxcvbn::Scoring.most_guessable_match_sequence(pw, matches)
-      #       js_result = strip_log10 js_most_guessable_match_sequence(pw, matches)
+      #       ruby_result = strip_precision Zxcvbn::Scoring.most_guessable_match_sequence(pw, matches)
+      #       js_result = strip_precision js_most_guessable_match_sequence(pw, matches)
       #       # if ruby_result["sequence"] != js_result["sequence"]
       #       #   binding.pry
       #       # end
@@ -195,8 +195,8 @@ RSpec.describe Zxcvbn do
     context "when running #zxcvbn" do
       password_list.each do |pw|
         it "#zxcvbn produces same output for '#{pw}'" do
-          ruby_result = strip_log10 Zxcvbn.zxcvbn(pw)
-          js_result = strip_log10 js_zxcvbn(pw)
+          ruby_result = strip_precision Zxcvbn.zxcvbn(pw)
+          js_result = strip_precision js_zxcvbn(pw)
 
           ruby_sequence_result = ruby_result["sequence"].map do |i|
             i.reject do |k, _v|

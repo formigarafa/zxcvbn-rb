@@ -1,7 +1,12 @@
 # frozen_string_literal: true
 
 module ResultHelpers
-  def strip_log10(result)
+  # strips data where the architectures produce minor differences in precision,
+  # like infinitesimals floats and data calculated from it.
+  # these item are calculated based on other properties exposed on the result
+  # so the test is still valid. for example: guesses_log10 is based on guesses.
+  # and calc_time changes on every run so it is not comparable.
+  def strip_precision(result)
     if result.is_a?(Hash)
       result.reject! do |k, _v|
         ["guesses_log10", "calc_time", "crack_times_seconds", "crack_times_display"].include?(k)
