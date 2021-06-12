@@ -108,82 +108,87 @@ RSpec.describe Zxcvbn do
   PASSWORD_LIST
 
   context "when comparing with js library" do
-    [
-      :dictionary_match,
-      :reverse_dictionary_match,
-      :l33t_match,
-      :spatial_match,
-      :repeat_match,
-      :sequence_match,
-      :regex_match,
-      :date_match
-    ].each do |matcher|
-      context "for matcher #{matcher}" do
-        password_list.each do |pw|
-          it "produces same output for '#{pw}'" do
-            js_result = strip_log10 js_matcher(matcher, pw)
-            ruby_result = strip_log10 Zxcvbn::Matching.send(matcher, pw)
-            expect(ruby_result).to contain_exactly(*js_result)
-          end
-        end
-      end
-    end
-
-    context "when running #omnimatch" do
-      password_list.each do |pw|
-        it "produces same output for '#{pw}'" do
-          ruby_result = strip_log10 Zxcvbn::Matching.omnimatch(pw)
-          js_result = strip_log10 js_omnimatch(pw)
-          expect(ruby_result).to contain_exactly(*js_result)
-        end
-      end
-    end
-
-    context "when running #estimate_guesses" do
-      before do
-        allow(Zxcvbn::Scoring).to receive(:estimate_guesses).and_wrap_original do |m, *args|
-          js_result = js_estimate_guesses(*args)
-          ruby_result = m.call(*args)
-
-          error = (js_result - ruby_result).abs
-          error_margin = error.to_f / js_result
-          expect(error_margin).to be <= 0.0001
-          ruby_result # return value (cannot use the word return from here)
-        end
-      end
-
-      password_list.each do |pw|
-        it "#estimate_guesses produces same output for '#{pw}'" do
-          matches = Zxcvbn::Matching.omnimatch(pw)
-          Zxcvbn::Scoring.most_guessable_match_sequence(pw, matches)
-        end
-      end
-    end
-
-    context "when running #most_guessable_match_sequence" do
-      password_list.each do |pw|
-        # ["2001"].each do |pw|
-        it "#most_guessable_match_sequence produces same output for '#{pw}'" do
-          matches = Zxcvbn::Matching.omnimatch(pw)
-          ruby_result = strip_log10 Zxcvbn::Scoring.most_guessable_match_sequence(pw, matches)
-          js_result = strip_log10 js_most_guessable_match_sequence(pw, matches)
-          # if ruby_result["sequence"] != js_result["sequence"]
-          #   binding.pry
-          # end
-          expect(ruby_result["sequence"]).to eq js_result["sequence"]
-          ruby_base_result = ruby_result.reject { |k, _v| ["sequence", "guesses"].include? k }
-          js_base_result = js_result.reject { |k, _v| ["sequence", "guesses"].include? k }
-          expect(ruby_base_result).to eq(js_base_result)
-          error = (js_result["guesses"] - ruby_result["guesses"]).abs
-          error_margin = error.to_f / js_result["guesses"]
-          if error_margin > 0.0001
-            puts args[0]["pattern"]
-            # binding.pry
-            # ruby_result = m.call(*args)
-          end
-          expect(error_margin).to be <= 0.0001
-        end
-      end
+    context "internals" do
+      # These specs were useful comparing results to translate the code from
+      # coffeescript to ruby, now they just take time but could come in handy
+      # if needed to debug something.
+      # [
+      #   :dictionary_match,
+      #   :reverse_dictionary_match,
+      #   :l33t_match,
+      #   :spatial_match,
+      #   :repeat_match,
+      #   :sequence_match,
+      #   :regex_match,
+      #   :date_match
+      # ].each do |matcher|
+      #   context "for matcher #{matcher}" do
+      #     password_list.each do |pw|
+      #       it "produces same output for '#{pw}'" do
+      #         js_result = strip_log10 js_matcher(matcher, pw)
+      #         ruby_result = strip_log10 Zxcvbn::Matching.send(matcher, pw)
+      #         expect(ruby_result).to contain_exactly(*js_result)
+      #       end
+      #     end
+      #   end
+      # end
+      #
+      # context "when running #omnimatch" do
+      #   password_list.each do |pw|
+      #     it "produces same output for '#{pw}'" do
+      #       ruby_result = strip_log10 Zxcvbn::Matching.omnimatch(pw)
+      #       js_result = strip_log10 js_omnimatch(pw)
+      #       expect(ruby_result).to contain_exactly(*js_result)
+      #     end
+      #   end
+      # end
+      #
+      # context "when running #estimate_guesses" do
+      #   before do
+      #     allow(Zxcvbn::Scoring).to receive(:estimate_guesses).and_wrap_original do |m, *args|
+      #       js_result = js_estimate_guesses(*args)
+      #       ruby_result = m.call(*args)
+      #
+      #       error = (js_result - ruby_result).abs
+      #       error_margin = error.to_f / js_result
+      #       expect(error_margin).to be <= 0.0001
+      #       ruby_result # return value (cannot use the word return from here)
+      #     end
+      #   end
+      #
+      #   password_list.each do |pw|
+      #     it "#estimate_guesses produces same output for '#{pw}'" do
+      #       matches = Zxcvbn::Matching.omnimatch(pw)
+      #       Zxcvbn::Scoring.most_guessable_match_sequence(pw, matches)
+      #     end
+      #   end
+      # end
+      #
+      # context "when running #most_guessable_match_sequence" do
+      #   password_list.each do |pw|
+      #     # ["2001"].each do |pw|
+      #     it "#most_guessable_match_sequence produces same output for '#{pw}'" do
+      #       matches = Zxcvbn::Matching.omnimatch(pw)
+      #       ruby_result = strip_log10 Zxcvbn::Scoring.most_guessable_match_sequence(pw, matches)
+      #       js_result = strip_log10 js_most_guessable_match_sequence(pw, matches)
+      #       # if ruby_result["sequence"] != js_result["sequence"]
+      #       #   binding.pry
+      #       # end
+      #       expect(ruby_result["sequence"]).to eq js_result["sequence"]
+      #       ruby_base_result = ruby_result.reject { |k, _v| ["sequence", "guesses"].include? k }
+      #       js_base_result = js_result.reject { |k, _v| ["sequence", "guesses"].include? k }
+      #       expect(ruby_base_result).to eq(js_base_result)
+      #       error = (js_result["guesses"] - ruby_result["guesses"]).abs
+      #       error_margin = error.to_f / js_result["guesses"]
+      #       if error_margin > 0.0001
+      #         puts args[0]["pattern"]
+      #         # binding.pry
+      #         # ruby_result = m.call(*args)
+      #       end
+      #       expect(error_margin).to be <= 0.0001
+      #     end
+      #   end
+      # end
     end
 
     context "when running #zxcvbn" do
@@ -215,15 +220,16 @@ RSpec.describe Zxcvbn do
     end
   end
 
-  it "works with very long pass" do
-    pw = [
-      "hKmuwA4TkmoSmqTuBX#x%%fscPx?BN^JxylhceDouLFLNRuXX5E$R@8^h%mxpv6F#q6*?52",
-      "V7cw^QwOC4_7XUXBPp%C9#LTGo-^CcyF*mE2UE^U?gH6Vc3f!Tq6C|KLn%uwqg3q12SrUW@",
-      "lryJPnUKVfcS0hPJdK-RVDsZab01_ueyz?oWDq2NKo3zbn2la9t=PkMk1L62eV2yqdorG7p",
-      "LY1pCuDf1gJ=%ASFHP7+taxrI0vH4kvhWfHScdveV@?"
-    ].join
-    expect { Zxcvbn.zxcvbn(pw) }.not_to raise_error
-  end
+  # very slow but works
+  # it "works with very long pass" do
+  #   pw = [
+  #     "hKmuwA4TkmoSmqTuBX#x%%fscPx?BN^JxylhceDouLFLNRuXX5E$R@8^h%mxpv6F#q6*?52",
+  #     "V7cw^QwOC4_7XUXBPp%C9#LTGo-^CcyF*mE2UE^U?gH6Vc3f!Tq6C|KLn%uwqg3q12SrUW@",
+  #     "lryJPnUKVfcS0hPJdK-RVDsZab01_ueyz?oWDq2NKo3zbn2la9t=PkMk1L62eV2yqdorG7p",
+  #     "LY1pCuDf1gJ=%ASFHP7+taxrI0vH4kvhWfHScdveV@?"
+  #   ].join
+  #   expect { Zxcvbn.zxcvbn(pw) }.not_to raise_error
+  # end
 
   it "is compatible with zxcvbn-js" do
     normal_result = Zxcvbn.zxcvbn("@lfred2004", ["alfred"]).reject { |k, _v| ["calc_time"].include? k }
