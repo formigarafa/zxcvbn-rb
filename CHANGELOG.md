@@ -1,3 +1,7 @@
+## [0.1.7] - unreleased
+- Ported original specs
+- fixed difference found on enumerate_l33t_subs
+
 ## [0.1.6] - 2021-05-28
 - Added test methods for compatibility with zxcvbn-js and zxcvbn-ruby.
 
