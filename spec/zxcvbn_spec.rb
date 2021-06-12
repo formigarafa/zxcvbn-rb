@@ -12,6 +12,7 @@ RSpec.describe Zxcvbn do
     P@ssword
     p@ssword
     p@$$word
+    p4@ssword
     123456
     123456789
     11111111
