@@ -75,6 +75,9 @@ Zxcvbn.zxcvbn("password")
 
 This gem include a compatible interface so it can be used as a drop-in substitution for `zxcvbn-js` or `zxcvbn-ruby`. You can just call `Zxcvbn.test` or use `Zxcvbn::Tester.new` the same way as you would if you were using `zxcvbn-js` or `zxcvbn-ruby`.
 
+### Note about translations (i18n, gettext, etc...)
+Check the [wiki](https://github.com/formigarafa/zxcvbn-rb/wiki) for more details on how to handle translations.
+
 ## Development
 
 After checking out the repo, run `bin/setup` to install dependencies. Then, run `rake spec` to run the tests. You can also run `bin/console` for an interactive prompt that will allow you to experiment.
