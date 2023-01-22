@@ -44,9 +44,7 @@ module JsHelpers
       JSON.parse(File.read(cache_name))
     else
       uncached_result = js_ctx.eval(js_str)
-      if !File.exist?(Pathname(File.expand_path("..", cache_name)))
-        Dir.mkdir Pathname(File.expand_path("..", cache_name))
-      end
+      FileUtils.mkdir_p(Pathname(File.expand_path("..", cache_name)))
       File.write(cache_name, uncached_result.to_json)
       uncached_result
     end

@@ -3,11 +3,28 @@ AllCops:
   NewCops: enable
   SuggestExtensions: false
 
+Layout/ClosingParenthesisIndentation:
+  Exclude:
+    - 'lib/zxcvbn/frequency_lists.rb'
+
 Layout/EndAlignment:
   EnforcedStyleAlignWith: start_of_line
 
+Layout/FirstArgumentIndentation:
+  Exclude:
+    - 'lib/zxcvbn/frequency_lists.rb'
+
 Layout/LineLength:
   Max: 120
+  Exclude:
+    - 'lib/zxcvbn/frequency_lists.rb'
+
+Layout/MultilineMethodCallIndentation:
+  Exclude:
+    - 'lib/zxcvbn/frequency_lists.rb'
+
+Lint/AmbiguousOperatorPrecedence:
+  Enabled: false
 
 Lint/UnderscorePrefixedVariableName:
   Enabled: false

@@ -31,7 +31,7 @@ module Zxcvbn
   end
 
   def self.test(password, user_inputs = [])
-    OpenStruct.new(Zxcvbn.zxcvbn(password, user_inputs))
+    OpenStruct.new(Zxcvbn.zxcvbn(password, user_inputs)) # rubocop:disable Style/OpenStructUse
   end
 
   class Tester
