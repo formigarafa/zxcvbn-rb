@@ -15,6 +15,10 @@ module Zxcvbn
       build_ranked_dict(lst)
     end
 
+    RANKED_DICTIONARIES_MAX_WORD_SIZE = RANKED_DICTIONARIES.transform_values do |word_scores|
+      word_scores.keys.max_by(&:size).size
+    end
+
     GRAPHS = {
       "qwerty" => ADJACENCY_GRAPHS["qwerty"],
       "dvorak" => ADJACENCY_GRAPHS["dvorak"],
@@ -151,8 +155,13 @@ module Zxcvbn
       len = password.length
       password_lower = password.downcase
       _ranked_dictionaries.each do |dictionary_name, ranked_dict|
+        longest_dict_word_size = RANKED_DICTIONARIES_MAX_WORD_SIZE.fetch(dictionary_name) do
+          ranked_dict.keys.max_by(&:size)&.size || 0
+        end
+        search_width = [longest_dict_word_size, len].min
         (0...len).each do |i|
-          (i...len).each do |j|
+          search_end = [i + search_width, len].min
+          (i...search_end).each do |j|
             if ranked_dict.key?(password_lower[i..j])
               word = password_lower[i..j]
               rank = ranked_dict[word]
@@ -187,7 +196,9 @@ module Zxcvbn
     end
 
     def self.user_input_dictionary=(ordered_list)
-      RANKED_DICTIONARIES["user_inputs"] = build_ranked_dict(ordered_list.dup)
+      ranked_dict = build_ranked_dict(ordered_list.dup)
+      RANKED_DICTIONARIES["user_inputs"] = ranked_dict
+      RANKED_DICTIONARIES_MAX_WORD_SIZE["user_inputs"] = ranked_dict.keys.max_by(&:size)&.size || 0
     end
 
     #-------------------------------------------------------------------------------

@@ -5,7 +5,20 @@
 
 Ruby port of Dropbox's [zxcvbn.js](https://github.com/dropbox/zxcvbn) JavaScript library running completely in Ruby (no need to load execjs or libv8).
 
-The intention is to provide an option 100% Ruby solution with all the same features and same results (or as close to the original JS function as possible).
+### Goals:
+- Exact same results as [dropbox/zxcvbn.js (Version 4.4.2)](https://github.com/dropbox/zxcvbn). If **result compatibility** is found or made different a major version will be bumped so no one is caught off guard.
+- Parity of features to [dropbox/zxcvbn.js (Version 4.4.2)](https://github.com/dropbox/zxcvbn) interface.
+- 100% native Ruby solution: **No Javascript Runtime**.
+
+### Compatible with [zxcvbn-js](https://github.com/bitzesty/zxcvbn-js) and [zxcvbn-ruby](https://github.com/envato/zxcvbn-ruby)
+
+This gem include compatibility interfaces so it can be used as a drop-in substitution both of the most popular alternatives `zxcvbn-js` and `zxcvbn-ruby`). Besides `Zxcvbn.zxcvbn` you can just call `Zxcvbn.test` or use `Zxcvbn::Tester.new` the same way as you would if you were using any of them.
+
+|                                    | `zxcvbn-rb`            | `zxcvbn-js`            | `zxcvbn-ruby`          |
+|------------------------------------|------------------------|------------------------|------------------------|
+| Results match `zxcvbn.js (V4.4.2)` | :white_check_mark: yes | :white_check_mark: yes | :x: no                 |
+| Run without Javascript Runtime     | :white_check_mark: yes | :x: no                 | :white_check_mark: yes |
+| Interface compatibility with others| :white_check_mark: yes | :x: no                 | :x: no                 |
 
 ## Installation
 
@@ -70,10 +83,6 @@ Zxcvbn.zxcvbn("password")
   }
 }
 ```
-
-### Compatible with `zxcvbn-js` and `zxcvbn-ruby`
-
-This gem include a compatible interface so it can be used as a drop-in substitution for `zxcvbn-js` or `zxcvbn-ruby`. You can just call `Zxcvbn.test` or use `Zxcvbn::Tester.new` the same way as you would if you were using `zxcvbn-js` or `zxcvbn-ruby`.
 
 ### Note about translations (i18n, gettext, etc...)
 Check the [wiki](https://github.com/formigarafa/zxcvbn-rb/wiki) for more details on how to handle translations.
