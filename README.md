@@ -20,18 +20,6 @@ This gem include compatibility interfaces so it can be used as a drop-in substit
 | Run without Javascript Runtime     | :white_check_mark: yes | :x: no                 | :white_check_mark: yes |
 | Interface compatibility with others| :white_check_mark: yes | :x: no                 | :x: no                 |
 
-## Configuration
-
-Zxcvbn allows you to load custom dictionaries to enhance the password strength estimation.
-
-To load dictionaries, use the following syntax:
-
-```ruby
-Zxcvbn.configure do |config|
-  config.add_dictionary('path/to/custom_dictionary.txt')
-  # Add more dictionaries as needed
-end
-
 ## Installation
 
 Add this line to your application's Gemfile:
@@ -47,6 +35,18 @@ And then execute:
 Or install it yourself as:
 
     $ gem install zxcvbn
+
+## Configuration
+
+Zxcvbn allows you to load custom dictionaries to enhance the password strength estimation.
+
+To load dictionaries, use the following syntax:
+
+```ruby
+Zxcvbn.configure do |config|
+  config.add_dictionary('path/to/custom_dictionary.txt')
+  # Add more dictionaries as needed
+end
 
 ## Usage
 
