@@ -122,7 +122,7 @@ RSpec.describe "dictionary matching" do
     }
   }
 
-  dm = ->(pw) { Zxcvbn::Matching.dictionary_match(pw, test_dicts) }
+  dm = ->(pw) { Zxcvbn::Matching.dictionary_match(pw, {}, test_dicts) }
 
   matches = dm.call("motherboard")
   patterns = ["mother", "motherboard", "board"]
@@ -218,7 +218,7 @@ RSpec.describe "dictionary matching" do
   end
 
   # test the default dictionaries
-  matches = Zxcvbn::Matching.dictionary_match("wow")
+  matches = Zxcvbn::Matching.dictionary_match("wow", {})
   patterns = ["wow"]
   ijs = [[0, 2]]
   msg = "default dictionaries"
@@ -236,9 +236,8 @@ RSpec.describe "dictionary matching" do
     }
   )
 
-  Zxcvbn::Matching.user_input_dictionary = ["foo", "bar"]
-  matches = Zxcvbn::Matching.dictionary_match "foobar"
-  Zxcvbn::Matching.user_input_dictionary = []
+  user_dict = Zxcvbn::Matching.build_user_input_dictionary(["foo", "bar"])
+  matches = Zxcvbn::Matching.dictionary_match("foobar", user_dict)
   matches = matches.select { |match| match["dictionary_name"] == "user_inputs" }
   msg = "matches with provided user input dictionary"
   check_matches(
@@ -265,7 +264,7 @@ RSpec.describe "reverse dictionary matching" do
     }
   }
   password = "0123456789"
-  matches = Zxcvbn::Matching.reverse_dictionary_match password, test_dicts
+  matches = Zxcvbn::Matching.reverse_dictionary_match(password, {}, test_dicts)
   msg = "matches against reversed words"
   check_matches(
     msg,
@@ -327,7 +326,7 @@ RSpec.describe "l33t matching" do
     }
   }
 
-  lm = ->(pw) { Zxcvbn::Matching.l33t_match(pw, dicts, test_table) }
+  lm = ->(pw) { Zxcvbn::Matching.l33t_match(pw, {}, dicts, test_table) }
 
   it "doesn't match ''" do
     expect(lm.call("")).to eq([])
@@ -383,7 +382,7 @@ RSpec.describe "l33t matching" do
   end
 
   it "doesn't match single-character l33ted words" do
-    matches = Zxcvbn::Matching.l33t_match("4 1 @")
+    matches = Zxcvbn::Matching.l33t_match("4 1 @", {})
     expect(matches).to eq([])
   end
 
@@ -534,7 +533,7 @@ end
 RSpec.describe "repeat matching" do
   ["", "#"].each do |password|
     it "doesn't match length-#{password.length} repeat patterns" do
-      expect(Zxcvbn::Matching.repeat_match(password)).to eq([])
+      expect(Zxcvbn::Matching.repeat_match(password, {})).to eq([])
     end
   end
 
@@ -543,7 +542,7 @@ RSpec.describe "repeat matching" do
   suffixes = ["u", "u%7"]
   pattern = "&&&&&"
   genpws(pattern, prefixes, suffixes).each do |password, i, j|
-    matches = Zxcvbn::Matching.repeat_match password
+    matches = Zxcvbn::Matching.repeat_match(password, {})
     msg = "matches embedded repeat patterns"
     check_matches(
       msg,
@@ -559,7 +558,7 @@ RSpec.describe "repeat matching" do
   [3, 12].each do |length|
     ["a", "Z", "4", "&"].each do |chr|
       pattern = chr * length
-      matches = Zxcvbn::Matching.repeat_match pattern
+      matches = Zxcvbn::Matching.repeat_match(pattern, {})
       msg = "matches repeats with base character '#{chr}'"
       check_matches(
         msg,
@@ -573,7 +572,7 @@ RSpec.describe "repeat matching" do
     end
   end
 
-  matches = Zxcvbn::Matching.repeat_match "BBB1111aaaaa@@@@@@"
+  matches = Zxcvbn::Matching.repeat_match("BBB1111aaaaa@@@@@@", {})
   patterns = ["BBB", "1111", "aaaaa", "@@@@@@"]
   msg = "matches multiple adjacent repeats"
   check_matches(
@@ -586,7 +585,7 @@ RSpec.describe "repeat matching" do
     { "base_token" => ["B", "1", "a", "@"] }
   )
 
-  matches = Zxcvbn::Matching.repeat_match "2818BBBbzsdf1111@*&@!aaaaaEUDA@@@@@@1729"
+  matches = Zxcvbn::Matching.repeat_match("2818BBBbzsdf1111@*&@!aaaaaEUDA@@@@@@1729", {})
   msg = "matches multiple repeats with non-repeats in-between"
   check_matches(
     msg,
@@ -600,7 +599,7 @@ RSpec.describe "repeat matching" do
 
   # test multi-character repeats
   pattern = "abab"
-  matches = Zxcvbn::Matching.repeat_match pattern
+  matches = Zxcvbn::Matching.repeat_match(pattern, {})
   msg = "matches multi-character repeat pattern"
   check_matches(
     msg,
@@ -613,7 +612,7 @@ RSpec.describe "repeat matching" do
   )
 
   pattern = "aabaab"
-  matches = Zxcvbn::Matching.repeat_match pattern
+  matches = Zxcvbn::Matching.repeat_match(pattern, {})
   msg = "matches aabaab as a repeat instead of the aa prefix"
   check_matches(
     msg,
@@ -626,7 +625,7 @@ RSpec.describe "repeat matching" do
   )
 
   pattern = "abababab"
-  matches = Zxcvbn::Matching.repeat_match pattern
+  matches = Zxcvbn::Matching.repeat_match(pattern, {})
   msg = "identifies ab as repeat string, even though abab is also repeated"
   check_matches(
     msg,
@@ -834,11 +833,11 @@ end
 
 RSpec.describe "omnimatch" do
   it "doesn't match ''" do
-    expect(Zxcvbn::Matching.omnimatch("")).to eq([])
+    expect(Zxcvbn::Matching.omnimatch("", [])).to eq([])
   end
 
   password = "r0sebudmaelstrom11/20/91aaaa"
-  matches = Zxcvbn::Matching.omnimatch(password)
+  matches = Zxcvbn::Matching.omnimatch(password, [])
   [
     ["dictionary",  [0, 6]],
     ["dictionary",  [7, 15]],

@@ -12,6 +12,7 @@ GEM
     diff-lcs (1.4.4)
     docile (1.4.0)
     json (2.6.3)
+    libv8-node (16.10.0.0-arm64-darwin)
     libv8-node (16.10.0.0-x86_64-darwin-19)
     libv8-node (16.10.0.0-x86_64-linux)
     method_source (1.0.0)
@@ -65,6 +66,7 @@ GEM
     unicode-display_width (2.4.2)
 
 PLATFORMS
+  arm64-darwin-21
   x86_64-darwin-19
   x86_64-linux
 
