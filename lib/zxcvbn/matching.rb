@@ -128,8 +128,15 @@ module Zxcvbn
     # ------------------------------------------------------------------------------
     # omnimatch -- combine everything ----------------------------------------------
     # ------------------------------------------------------------------------------
-    def self.omnimatch(password)
+    def self.omnimatch(password, user_inputs = [])
+      user_dict = build_user_input_dictionary(user_inputs)
       matches = []
+      user_input_matchers = [
+        :dictionary_match,
+        :reverse_dictionary_match,
+        :l33t_match,
+        :repeat_match
+      ]
       matchers = [
         :dictionary_match,
         :reverse_dictionary_match,
@@ -141,7 +148,11 @@ module Zxcvbn
         :date_match
       ]
       matchers.each do |matcher|
-        matches += send(matcher, password)
+        matches += if user_input_matchers.include?(matcher)
+          send(matcher, password, user_dict)
+        else
+          send(matcher, password)
+        end
       end
       sorted(matches)
     end
@@ -149,43 +160,48 @@ module Zxcvbn
     #-------------------------------------------------------------------------------
     # dictionary match (common passwords, english, last names, etc) ----------------
     #-------------------------------------------------------------------------------
-    def self.dictionary_match(password, _ranked_dictionaries = RANKED_DICTIONARIES)
+    def self.dictionary_match(password, user_dict, _ranked_dictionaries = RANKED_DICTIONARIES)
       # _ranked_dictionaries variable is for unit testing purposes
       matches = []
-      len = password.length
-      password_lower = password.downcase
       _ranked_dictionaries.each do |dictionary_name, ranked_dict|
-        longest_dict_word_size = RANKED_DICTIONARIES_MAX_WORD_SIZE.fetch(dictionary_name) do
-          ranked_dict.keys.max_by(&:size)&.size || 0
-        end
-        search_width = [longest_dict_word_size, len].min
-        (0...len).each do |i|
-          search_end = [i + search_width, len].min
-          (i...search_end).each do |j|
-            if ranked_dict.key?(password_lower[i..j])
-              word = password_lower[i..j]
-              rank = ranked_dict[word]
-              matches << {
-                "pattern" => "dictionary",
-                "i" => i,
-                "j" => j,
-                "token" => password[i..j],
-                "matched_word" => word,
-                "rank" => rank,
-                "dictionary_name" => dictionary_name,
-                "reversed" => false,
-                "l33t" => false
-              }
-            end
-          end
-        end
+        check_dictionary(matches, password, dictionary_name, ranked_dict)
       end
+      check_dictionary(matches, password, "user_inputs", user_dict)
       sorted(matches)
     end
 
-    def self.reverse_dictionary_match(password, _ranked_dictionaries = RANKED_DICTIONARIES)
+    def self.check_dictionary(matches, password, dictionary_name, ranked_dict)
+      len = password.length
+      password_lower = password.downcase
+      longest_word_size = RANKED_DICTIONARIES_MAX_WORD_SIZE.fetch(dictionary_name) do
+        ranked_dict.keys.max_by(&:size)&.size || 0
+      end
+      search_width = [longest_word_size, len].min
+      (0...len).each do |i|
+        search_end = [i + search_width, len].min
+        (i...search_end).each do |j|
+          if ranked_dict.key?(password_lower[i..j])
+            word = password_lower[i..j]
+            rank = ranked_dict[word]
+            matches << {
+              "pattern" => "dictionary",
+              "i" => i,
+              "j" => j,
+              "token" => password[i..j],
+              "matched_word" => word,
+              "rank" => rank,
+              "dictionary_name" => dictionary_name,
+              "reversed" => false,
+              "l33t" => false
+            }
+          end
+        end
+      end
+    end
+
+    def self.reverse_dictionary_match(password, user_dict, _ranked_dictionaries = RANKED_DICTIONARIES)
       reversed_password = password.reverse
-      matches = dictionary_match(reversed_password, _ranked_dictionaries)
+      matches = dictionary_match(reversed_password, user_dict, _ranked_dictionaries)
       matches.each do |match|
         match["token"] = match["token"].reverse
         match["reversed"] = true
@@ -195,10 +211,15 @@ module Zxcvbn
       sorted(matches)
     end
 
-    def self.user_input_dictionary=(ordered_list)
-      ranked_dict = build_ranked_dict(ordered_list.dup)
-      RANKED_DICTIONARIES["user_inputs"] = ranked_dict
-      RANKED_DICTIONARIES_MAX_WORD_SIZE["user_inputs"] = ranked_dict.keys.max_by(&:size)&.size || 0
+    def self.build_user_input_dictionary(user_inputs_or_dict)
+      # optimization: if we receive a hash, we've been given the dict back (from the repeat matcher)
+      return user_inputs_or_dict if user_inputs_or_dict.is_a?(Hash)
+
+      sanitized_inputs = []
+      user_inputs_or_dict.each do |arg|
+        sanitized_inputs << arg.to_s.downcase if arg.is_a?(String) || arg.is_a?(Numeric) || arg == true || arg == false
+      end
+      build_ranked_dict(sanitized_inputs)
     end
 
     #-------------------------------------------------------------------------------
@@ -287,13 +308,13 @@ module Zxcvbn
       sub_dicts
     end
 
-    def self.l33t_match(password, _ranked_dictionaries = RANKED_DICTIONARIES, _l33t_table = L33T_TABLE)
+    def self.l33t_match(password, user_dict, _ranked_dictionaries = RANKED_DICTIONARIES, _l33t_table = L33T_TABLE)
       matches = []
       enumerate_l33t_subs(relevant_l33t_subtable(password, _l33t_table)).each do |sub|
         break if sub.empty? # corner case: password has no relevant subs.
 
         subbed_password = translate(password, sub)
-        dictionary_match(subbed_password, _ranked_dictionaries).each do |match|
+        dictionary_match(subbed_password, user_dict, _ranked_dictionaries).each do |match|
           token = password[match["i"]..match["j"]]
           if token.downcase == match["matched_word"]
             next # only return the matches that contain an actual substitution
@@ -403,7 +424,7 @@ module Zxcvbn
     #-------------------------------------------------------------------------------
     # repeats (aaa, abcabcabc) and sequences (abcdef) ------------------------------
     #-------------------------------------------------------------------------------
-    def self.repeat_match(password)
+    def self.repeat_match(password, user_dict)
       matches = []
       greedy = /(.+)\1+/
       lazy = /(.+?)\1+/
@@ -436,7 +457,7 @@ module Zxcvbn
         i = match.begin(0)
         j = match.end(0) - 1
         # recursively match and score the base string
-        base_analysis = Scoring.most_guessable_match_sequence(base_token, omnimatch(base_token))
+        base_analysis = Scoring.most_guessable_match_sequence(base_token, omnimatch(base_token, user_dict))
         base_matches = base_analysis["sequence"]
         base_guesses = base_analysis["guesses"]
         matches << {

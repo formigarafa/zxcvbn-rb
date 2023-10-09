@@ -13,13 +13,7 @@ module Zxcvbn
 
   def self.zxcvbn(password, user_inputs = [])
     start = (Time.now.to_f * 1000).to_i
-    # reset the user inputs matcher on a per-request basis to keep things stateless
-    sanitized_inputs = []
-    user_inputs.each do |arg|
-      sanitized_inputs << arg.to_s.downcase if arg.is_a?(String) || arg.is_a?(Numeric) || arg == true || arg == false
-    end
-    Matching.user_input_dictionary = sanitized_inputs
-    matches = Matching.omnimatch(password)
+    matches = Matching.omnimatch(password, user_inputs)
     result = Scoring.most_guessable_match_sequence(password, matches)
     result["calc_time"] = (Time.now.to_f * 1000).to_i - start
     attack_times = TimeEstimates.estimate_attack_times(result["guesses"])
