@@ -131,29 +131,14 @@ module Zxcvbn
     def self.omnimatch(password, user_inputs = [])
       user_dict = build_user_input_dictionary(user_inputs)
       matches = []
-      user_input_matchers = [
-        :dictionary_match,
-        :reverse_dictionary_match,
-        :l33t_match,
-        :repeat_match
-      ]
-      matchers = [
-        :dictionary_match,
-        :reverse_dictionary_match,
-        :l33t_match,
-        :spatial_match,
-        :repeat_match,
-        :sequence_match,
-        :regex_match,
-        :date_match
-      ]
-      matchers.each do |matcher|
-        matches += if user_input_matchers.include?(matcher)
-          send(matcher, password, user_dict)
-        else
-          send(matcher, password)
-        end
-      end
+      matches += dictionary_match(password, user_dict, _ranked_dictionaries = RANKED_DICTIONARIES)
+      matches += reverse_dictionary_match(password, user_dict, _ranked_dictionaries = RANKED_DICTIONARIES)
+      matches += l33t_match(password, user_dict, _ranked_dictionaries = RANKED_DICTIONARIES, _l33t_table = L33T_TABLE)
+      matches += spatial_match(password, _graphs = GRAPHS)
+      matches += repeat_match(password, user_dict)
+      matches += sequence_match(password)
+      matches += regex_match(password, _regexen = REGEXEN)
+      matches += date_match(password)
       sorted(matches)
     end
 
