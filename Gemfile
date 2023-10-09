@@ -11,7 +11,5 @@ group :development do
   gem "rspec", "~> 3.0"
   gem "rubocop", "~> 1.43"
 
-  gem "pry"
-  gem "pry-byebug"
   gem "simplecov", require: false
 end
