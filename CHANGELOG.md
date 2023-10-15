@@ -1,3 +1,8 @@
+## [0.1.10] - 2023-10-15
+- [#10] Refactor implementation to avoid thread safety issues for user inputs
+
+  *Adam Kiczula (@adamkiczula)*
+
 ## [0.1.9] - 2023-01-27
 - [#6] [#7] Security/Performance fix to vulnerability to DoS attacks.
 
