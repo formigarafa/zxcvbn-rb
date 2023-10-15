@@ -173,7 +173,7 @@ RSpec.describe Zxcvbn do
       #       ruby_result = strip_precision Zxcvbn::Scoring.most_guessable_match_sequence(pw, matches)
       #       js_result = strip_precision js_most_guessable_match_sequence(pw, matches)
       #       # if ruby_result["sequence"] != js_result["sequence"]
-      #       #   binding.pry
+      #       #   binding.irb
       #       # end
       #       expect(ruby_result["sequence"]).to eq js_result["sequence"]
       #       ruby_base_result = ruby_result.reject { |k, _v| ["sequence", "guesses"].include? k }
@@ -183,7 +183,7 @@ RSpec.describe Zxcvbn do
       #       error_margin = error.to_f / js_result["guesses"]
       #       if error_margin > 0.0001
       #         puts args[0]["pattern"]
-      #         # binding.pry
+      #         # binding.irb
       #         # ruby_result = m.call(*args)
       #       end
       #       expect(error_margin).to be <= 0.0001

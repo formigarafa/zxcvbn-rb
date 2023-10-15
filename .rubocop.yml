@@ -60,3 +60,6 @@ Style/SymbolArray:
 
 Style/WordArray:
   Enabled: false
+
+Style/YodaCondition:
+  Enabled: false
