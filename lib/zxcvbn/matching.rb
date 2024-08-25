@@ -11,7 +11,7 @@ module Zxcvbn
       result
     end
 
-    RANKED_DICTIONARIES = FREQUENCY_LISTS.transform_values do |lst|
+    RANKED_DICTIONARIES = Zxcvbn.frequency_lists.transform_values do |lst|
       build_ranked_dict(lst)
     end
 
