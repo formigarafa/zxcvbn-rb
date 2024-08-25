@@ -6,7 +6,7 @@ module Zxcvbn
     # this calculates the average over all keys.
     def self.calc_average_degree(graph)
       average = 0
-      graph.each do |_key, neighbors|
+      graph.each_value do |neighbors|
         average += neighbors.count { |n| n }.to_f
       end
       average /= graph.keys.size.to_f

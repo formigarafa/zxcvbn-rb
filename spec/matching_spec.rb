@@ -29,7 +29,7 @@ def check_matches(prefix, rspec_it, matches, pattern_names, patterns, ijs, props
   end
 
   is_equal_len_args = pattern_names.length == patterns.length && pattern_names.length == ijs.length
-  props.each do |_prop, lst|
+  props.each_value do |lst|
     # props is structured as: keys that points to list of values
     is_equal_len_args &&= (lst.length == patterns.length)
   end

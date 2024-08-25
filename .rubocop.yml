@@ -44,6 +44,9 @@ Style/Next:
 Style/NumericPredicate:
   Enabled: false
 
+Style/RedundantReturn:
+  Enabled: false
+
 Style/StringLiterals:
   Enabled: true
   EnforcedStyle: double_quotes
