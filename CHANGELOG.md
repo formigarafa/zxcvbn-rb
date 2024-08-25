@@ -1,3 +1,9 @@
+## [0.1.11] - 2024-08-25
+- [13] Reduce object allocations (continuation)
+- [12] Reduce object allocations
+
+  *Jukka Rautanen (@jukra)*
+
 ## [0.1.10] - 2023-10-15
 - [#10] Refactor implementation to avoid thread safety issues for user inputs
 
