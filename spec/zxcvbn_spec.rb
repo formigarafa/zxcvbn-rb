@@ -236,9 +236,9 @@ RSpec.describe Zxcvbn do
     normal_result = Zxcvbn.zxcvbn("@lfred2004", ["alfred"]).reject { |k, _v| ["calc_time"].include? k }
     result1 = Zxcvbn.test("@lfred2004", ["alfred"])
     result2 = Zxcvbn::Tester.new.test("@lfred2004", ["alfred"])
-    expect(result1).to be_a(OpenStruct) # rubocop:disable Style/OpenStructUse
+    expect(result1).to be_a(Zxcvbn::Result)
     expect(result1.to_h.transform_keys(&:to_s).reject { |k, _v| ["calc_time"].include? k }).to eq(normal_result)
-    expect(result2).to be_a(OpenStruct) # rubocop:disable Style/OpenStructUse
+    expect(result2).to be_a(Zxcvbn::Result)
     expect(result2.to_h.transform_keys(&:to_s).reject { |k, _v| ["calc_time"].include? k }).to eq(normal_result)
   end
 end
