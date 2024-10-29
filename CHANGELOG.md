@@ -1,3 +1,8 @@
+## [0.1.12] - 2024-10-29
+- [16] Stop using OpenStruct
+
+  *Mitchell Henke (@mitchellhenke)*
+
 ## [0.1.11] - 2024-08-25
 - [13] Reduce object allocations (continuation)
 - [12] Reduce object allocations
