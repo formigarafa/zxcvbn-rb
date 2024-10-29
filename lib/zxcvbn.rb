@@ -10,6 +10,18 @@ require_relative "zxcvbn/version"
 
 module Zxcvbn
   class Error < StandardError; end
+  Result = Struct.new(
+    :password,
+    :guesses,
+    :guesses_log10,
+    :sequence,
+    :calc_time,
+    :crack_times_seconds,
+    :crack_times_display,
+    :score,
+    :feedback,
+    keyword_init: true
+  )
 
   def self.zxcvbn(password, user_inputs = [])
     start = (Time.now.to_f * 1000).to_i
@@ -25,7 +37,7 @@ module Zxcvbn
   end
 
   def self.test(password, user_inputs = [])
-    OpenStruct.new(Zxcvbn.zxcvbn(password, user_inputs)) # rubocop:disable Style/OpenStructUse
+    Result.new(Zxcvbn.zxcvbn(password, user_inputs))
   end
 
   class Tester
