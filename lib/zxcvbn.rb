@@ -20,7 +20,7 @@ module Zxcvbn
     :crack_times_display,
     :score,
     :feedback,
-    keyword_init: true,
+    keyword_init: true
   )
 
   def self.zxcvbn(password, user_inputs = [])
