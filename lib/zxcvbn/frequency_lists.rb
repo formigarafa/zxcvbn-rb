@@ -13,7 +13,7 @@ module Zxcvbn
         f.each_line do |line|
           next if line.nil?
 
-          main_enum << line.strip!
+          main_enum << line.strip!.freeze
         end
       end
     end
