@@ -9,7 +9,7 @@ module Zxcvbn
       graph.each_value do |neighbors|
         average += neighbors.count { |n| n }.to_f
       end
-      average /= graph.keys.size.to_f
+      average /= graph.size.to_f
       average
     end
 
@@ -324,8 +324,8 @@ module Zxcvbn
     # slightly different for keypad/mac keypad, but close enough
     KEYPAD_AVERAGE_DEGREE = calc_average_degree(ADJACENCY_GRAPHS["keypad"]).freeze
 
-    KEYBOARD_STARTING_POSITIONS = ADJACENCY_GRAPHS["qwerty"].keys.size
-    KEYPAD_STARTING_POSITIONS = ADJACENCY_GRAPHS["keypad"].keys.size
+    KEYBOARD_STARTING_POSITIONS = ADJACENCY_GRAPHS["qwerty"].size
+    KEYPAD_STARTING_POSITIONS = ADJACENCY_GRAPHS["keypad"].size
 
     def self.spatial_guesses(match)
       if ["qwerty", "dvorak"].include?(match["graph"])
