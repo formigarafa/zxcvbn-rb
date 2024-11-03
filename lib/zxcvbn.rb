@@ -25,7 +25,7 @@ module Zxcvbn
 
   def self.zxcvbn(password, user_inputs = [])
     start = (Time.now.to_f * 1000).to_i
-    matches = Matching.omnimatch(password, user_inputs)
+    matches = Matching.new.omnimatch(password, user_inputs)
     result = Scoring.most_guessable_match_sequence(password, matches)
     result["calc_time"] = (Time.now.to_f * 1000).to_i - start
     attack_times = TimeEstimates.estimate_attack_times(result["guesses"])

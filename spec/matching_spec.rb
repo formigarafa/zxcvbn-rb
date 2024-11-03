@@ -82,14 +82,14 @@ RSpec.describe "matching utils" do
       ["abc",  {},      "abc"]
     ].each do |string, map, result|
       it "translates '#{string}' to '#{result}' with provided charmap" do
-        expect(Zxcvbn::Matching.translate(string, map)).to eq result
+        expect(Zxcvbn::Matching.new.translate(string, map)).to eq result
       end
     end
   end
 
   describe "#sorted" do
     it "leaves an empty list untouched" do
-      expect(Zxcvbn::Matching.sorted([])).to eq []
+      expect(Zxcvbn::Matching.new.sorted([])).to eq []
     end
 
     it "sorts matches on primary index i and secondary j" do
@@ -99,7 +99,7 @@ RSpec.describe "matching utils" do
       m4 = { "i" => 0, "j" => 0 }
       m5 = { "i" => 2, "j" => 3 }
       m6 = { "i" => 0, "j" => 3 }
-      expect(Zxcvbn::Matching.sorted([m1, m2, m3, m4, m5, m6])).to eq [m4, m6, m5, m3, m1, m2]
+      expect(Zxcvbn::Matching.new.sorted([m1, m2, m3, m4, m5, m6])).to eq [m4, m6, m5, m3, m1, m2]
     end
   end
 end
@@ -122,7 +122,7 @@ RSpec.describe "dictionary matching" do
     }
   }
 
-  dm = ->(pw) { Zxcvbn::Matching.dictionary_match(pw, {}, test_dicts) }
+  dm = ->(pw) { Zxcvbn::Matching.new.dictionary_match(pw, {}, test_dicts) }
 
   matches = dm.call("motherboard")
   patterns = ["mother", "motherboard", "board"]
@@ -218,7 +218,7 @@ RSpec.describe "dictionary matching" do
   end
 
   # test the default dictionaries
-  matches = Zxcvbn::Matching.dictionary_match("wow", {})
+  matches = Zxcvbn::Matching.new.dictionary_match("wow", {})
   patterns = ["wow"]
   ijs = [[0, 2]]
   msg = "default dictionaries"
@@ -236,8 +236,8 @@ RSpec.describe "dictionary matching" do
     }
   )
 
-  user_dict = Zxcvbn::Matching.build_user_input_dictionary(["foo", "bar"])
-  matches = Zxcvbn::Matching.dictionary_match("foobar", user_dict)
+  user_dict = Zxcvbn::Matching.new.build_user_input_dictionary(["foo", "bar"])
+  matches = Zxcvbn::Matching.new.dictionary_match("foobar", user_dict)
   matches = matches.select { |match| match["dictionary_name"] == "user_inputs" }
   msg = "matches with provided user input dictionary"
   check_matches(
@@ -264,7 +264,7 @@ RSpec.describe "reverse dictionary matching" do
     }
   }
   password = "0123456789"
-  matches = Zxcvbn::Matching.reverse_dictionary_match(password, {}, test_dicts)
+  matches = Zxcvbn::Matching.new.reverse_dictionary_match(password, {}, test_dicts)
   msg = "matches against reversed words"
   check_matches(
     msg,
@@ -299,7 +299,7 @@ RSpec.describe "l33t matching" do
     ["4({60", { "a" => ["4"], "c" => ["(", "{"], "g" => ["6"], "o" => ["0"] }]
   ].each do |pw, expected|
     it "reduces l33t table to only the substitutions that a password might be employing" do
-      expect(Zxcvbn::Matching.relevant_l33t_subtable(pw, test_table)).to eq(expected)
+      expect(Zxcvbn::Matching.new.relevant_l33t_subtable(pw, test_table)).to eq(expected)
     end
   end
 
@@ -310,7 +310,7 @@ RSpec.describe "l33t matching" do
     [{ "a" => ["@", "4"], "c" => ["("] },  [{ "@" => "a", "(" => "c" }, { "4" => "a", "(" => "c" }]]
   ].each do |table, subs|
     it "enumerates the different sets of l33t substitutions a password might be using" do
-      expect(Zxcvbn::Matching.enumerate_l33t_subs(table)).to eq(subs)
+      expect(Zxcvbn::Matching.new.enumerate_l33t_subs(table)).to eq(subs)
     end
   end
 
@@ -326,7 +326,7 @@ RSpec.describe "l33t matching" do
     }
   }
 
-  lm = ->(pw) { Zxcvbn::Matching.l33t_match(pw, {}, dicts, test_table) }
+  lm = ->(pw) { Zxcvbn::Matching.new.l33t_match(pw, {}, dicts, test_table) }
 
   it "doesn't match ''" do
     expect(lm.call("")).to eq([])
@@ -382,7 +382,7 @@ RSpec.describe "l33t matching" do
   end
 
   it "doesn't match single-character l33ted words" do
-    matches = Zxcvbn::Matching.l33t_match("4 1 @", {})
+    matches = Zxcvbn::Matching.new.l33t_match("4 1 @", {})
     expect(matches).to eq([])
   end
 
@@ -400,14 +400,14 @@ end
 RSpec.describe "spatial matching" do
   ["", "/", "qw", "*/"].each do |password|
     it "doesn't match 1- and 2-character spatial patterns" do
-      expect(Zxcvbn::Matching.spatial_match(password)).to eq([])
+      expect(Zxcvbn::Matching.new.spatial_match(password)).to eq([])
     end
   end
 
   # for testing, make a subgraph that contains a single keyboard
   _graphs = { "qwerty" => Zxcvbn::ADJACENCY_GRAPHS["qwerty"] }
   a_pattern = "6tfGHJ"
-  matches = Zxcvbn::Matching.spatial_match "rz!#{a_pattern}%z", _graphs
+  matches = Zxcvbn::Matching.new.spatial_match "rz!#{a_pattern}%z", _graphs
   msg = "matches against spatial patterns surrounded by non-spatial patterns"
   check_matches(
     msg,
@@ -441,7 +441,7 @@ RSpec.describe "spatial matching" do
   ].each do |pattern, keyboard, turns, shifts|
     _graphs = {}
     _graphs[keyboard] = Zxcvbn::ADJACENCY_GRAPHS[keyboard]
-    matches = Zxcvbn::Matching.spatial_match pattern, _graphs
+    matches = Zxcvbn::Matching.new.spatial_match pattern, _graphs
     msg = "matches '#{pattern}' as a #{keyboard} pattern"
     check_matches(
       msg,
@@ -462,11 +462,11 @@ end
 RSpec.describe "sequence matching" do
   ["", "a", "1"].each do |password|
     it "doesn't match length-#{password.length} sequences" do
-      expect(Zxcvbn::Matching.sequence_match(password)).to eq([])
+      expect(Zxcvbn::Matching.new.sequence_match(password)).to eq([])
     end
   end
 
-  matches = Zxcvbn::Matching.sequence_match "abcbabc"
+  matches = Zxcvbn::Matching.new.sequence_match "abcbabc"
   msg = "matches overlapping patterns"
   check_matches(
     msg,
@@ -482,7 +482,7 @@ RSpec.describe "sequence matching" do
   suffixes = ["!", "22"]
   a_pattern = "jihg"
   genpws(a_pattern, prefixes, suffixes).each do |password, i, j|
-    matches = Zxcvbn::Matching.sequence_match password
+    matches = Zxcvbn::Matching.new.sequence_match password
     msg = "matches embedded sequence patterns #{password}"
     check_matches(
       msg,
@@ -513,7 +513,7 @@ RSpec.describe "sequence matching" do
     ["0369", "digits", true],
     ["97531", "digits", false]
   ].each do |pattern, name, is_ascending|
-    matches = Zxcvbn::Matching.sequence_match pattern
+    matches = Zxcvbn::Matching.new.sequence_match pattern
     msg = "matches '#{pattern}' as a '#{name}' sequence"
     check_matches(
       msg,
@@ -533,7 +533,7 @@ end
 RSpec.describe "repeat matching" do
   ["", "#"].each do |password|
     it "doesn't match length-#{password.length} repeat patterns" do
-      expect(Zxcvbn::Matching.repeat_match(password, {})).to eq([])
+      expect(Zxcvbn::Matching.new.repeat_match(password, {})).to eq([])
     end
   end
 
@@ -542,7 +542,7 @@ RSpec.describe "repeat matching" do
   suffixes = ["u", "u%7"]
   pattern = "&&&&&"
   genpws(pattern, prefixes, suffixes).each do |password, i, j|
-    matches = Zxcvbn::Matching.repeat_match(password, {})
+    matches = Zxcvbn::Matching.new.repeat_match(password, {})
     msg = "matches embedded repeat patterns"
     check_matches(
       msg,
@@ -558,7 +558,7 @@ RSpec.describe "repeat matching" do
   [3, 12].each do |length|
     ["a", "Z", "4", "&"].each do |chr|
       pattern = chr * length
-      matches = Zxcvbn::Matching.repeat_match(pattern, {})
+      matches = Zxcvbn::Matching.new.repeat_match(pattern, {})
       msg = "matches repeats with base character '#{chr}'"
       check_matches(
         msg,
@@ -572,7 +572,7 @@ RSpec.describe "repeat matching" do
     end
   end
 
-  matches = Zxcvbn::Matching.repeat_match("BBB1111aaaaa@@@@@@", {})
+  matches = Zxcvbn::Matching.new.repeat_match("BBB1111aaaaa@@@@@@", {})
   patterns = ["BBB", "1111", "aaaaa", "@@@@@@"]
   msg = "matches multiple adjacent repeats"
   check_matches(
@@ -585,7 +585,7 @@ RSpec.describe "repeat matching" do
     { "base_token" => ["B", "1", "a", "@"] }
   )
 
-  matches = Zxcvbn::Matching.repeat_match("2818BBBbzsdf1111@*&@!aaaaaEUDA@@@@@@1729", {})
+  matches = Zxcvbn::Matching.new.repeat_match("2818BBBbzsdf1111@*&@!aaaaaEUDA@@@@@@1729", {})
   msg = "matches multiple repeats with non-repeats in-between"
   check_matches(
     msg,
@@ -599,7 +599,7 @@ RSpec.describe "repeat matching" do
 
   # test multi-character repeats
   pattern = "abab"
-  matches = Zxcvbn::Matching.repeat_match(pattern, {})
+  matches = Zxcvbn::Matching.new.repeat_match(pattern, {})
   msg = "matches multi-character repeat pattern"
   check_matches(
     msg,
@@ -612,7 +612,7 @@ RSpec.describe "repeat matching" do
   )
 
   pattern = "aabaab"
-  matches = Zxcvbn::Matching.repeat_match(pattern, {})
+  matches = Zxcvbn::Matching.new.repeat_match(pattern, {})
   msg = "matches aabaab as a repeat instead of the aa prefix"
   check_matches(
     msg,
@@ -625,7 +625,7 @@ RSpec.describe "repeat matching" do
   )
 
   pattern = "abababab"
-  matches = Zxcvbn::Matching.repeat_match(pattern, {})
+  matches = Zxcvbn::Matching.new.repeat_match(pattern, {})
   msg = "identifies ab as repeat string, even though abab is also repeated"
   check_matches(
     msg,
@@ -643,7 +643,7 @@ RSpec.describe "regex matching" do
     ["1922", "recent_year"],
     ["2017", "recent_year"]
   ].each do |pattern, name|
-    matches = Zxcvbn::Matching.regex_match pattern
+    matches = Zxcvbn::Matching.new.regex_match pattern
     msg = "matches #{pattern} as a #{name} pattern"
     check_matches(
       msg,
@@ -660,7 +660,7 @@ end
 RSpec.describe "date matching" do
   ["", " ", "-", "/", "\\", "_", "."].each do |sep|
     password = "13#{sep}2#{sep}1921"
-    matches = Zxcvbn::Matching.date_match password
+    matches = Zxcvbn::Matching.new.date_match password
     msg = "matches dates that use '#{sep}' as a separator"
     check_matches(
       msg,
@@ -683,7 +683,7 @@ RSpec.describe "date matching" do
     m = 8
     y = 88
     password = order.sub("y", y.to_s).sub("m", m.to_s).sub("d", d.to_s)
-    matches = Zxcvbn::Matching.date_match password
+    matches = Zxcvbn::Matching.new.date_match password
     msg = "matches dates with '#{order}' format"
     check_matches(
       msg,
@@ -702,7 +702,7 @@ RSpec.describe "date matching" do
   end
 
   password1 = "111504"
-  matches = Zxcvbn::Matching.date_match password1
+  matches = Zxcvbn::Matching.new.date_match password1
   msg = "matches the date with year closest to REFERENCE_YEAR when ambiguous"
   check_matches(
     msg,
@@ -726,7 +726,7 @@ RSpec.describe "date matching" do
     [22, 11, 1551]
   ].each do |day, month, year|
     password = "#{year}#{month}#{day}"
-    matches = Zxcvbn::Matching.date_match password
+    matches = Zxcvbn::Matching.new.date_match password
     msg = "matches #{password}"
     check_matches(
       msg,
@@ -741,7 +741,7 @@ RSpec.describe "date matching" do
       }
     )
     password = "#{year}.#{month}.#{day}"
-    matches = Zxcvbn::Matching.date_match password
+    matches = Zxcvbn::Matching.new.date_match password
     msg = "matches #{password}"
     check_matches(
       msg,
@@ -758,7 +758,7 @@ RSpec.describe "date matching" do
   end
 
   password2 = "02/02/02"
-  matches = Zxcvbn::Matching.date_match password2
+  matches = Zxcvbn::Matching.new.date_match password2
   msg = "matches zero-padded dates"
   check_matches(
     msg,
@@ -779,7 +779,7 @@ RSpec.describe "date matching" do
   suffixes = ["!"]
   pattern = "1/1/91"
   genpws(pattern, prefixes, suffixes).each do |password, i, j|
-    matches = Zxcvbn::Matching.date_match password
+    matches = Zxcvbn::Matching.new.date_match password
     msg = "matches embedded dates"
     check_matches(
       msg,
@@ -796,7 +796,7 @@ RSpec.describe "date matching" do
     )
   end
 
-  matches = Zxcvbn::Matching.date_match "12/20/1991.12.20"
+  matches = Zxcvbn::Matching.new.date_match "12/20/1991.12.20"
   msg = "matches overlapping dates"
   check_matches(
     msg,
@@ -813,7 +813,7 @@ RSpec.describe "date matching" do
     }
   )
 
-  matches = Zxcvbn::Matching.date_match "912/20/919"
+  matches = Zxcvbn::Matching.new.date_match "912/20/919"
   msg = "matches dates padded by non-ambiguous digits"
   check_matches(
     msg,
@@ -833,11 +833,11 @@ end
 
 RSpec.describe "omnimatch" do
   it "doesn't match ''" do
-    expect(Zxcvbn::Matching.omnimatch("", [])).to eq([])
+    expect(Zxcvbn::Matching.new.omnimatch("", [])).to eq([])
   end
 
   password = "r0sebudmaelstrom11/20/91aaaa"
-  matches = Zxcvbn::Matching.omnimatch(password, [])
+  matches = Zxcvbn::Matching.new.omnimatch(password, [])
   [
     ["dictionary",  [0, 6]],
     ["dictionary",  [7, 15]],
