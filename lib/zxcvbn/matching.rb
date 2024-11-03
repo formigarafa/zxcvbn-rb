@@ -1,29 +1,14 @@
 # frozen_string_literal: true
 
 module Zxcvbn
-  class RankedDict
-    def initialize(words)
-      @words = words.to_a.freeze
-      @sorted = Set.new(@words).freeze
-    end
-
-    def key?(word)
-      @sorted.include? word
-    end
-
-    def keys
-      @words
-    end
-
-    def [](word)
-      # rank starts at 1, not 0
-      @words.index(word) + 1
-    end
-  end
-
   module Matching
     def self.build_ranked_dict(ordered_list)
-      RankedDict.new(ordered_list)
+      result = {}
+      # rank starts at 1, not 0
+      ordered_list.each_with_index do |word, idx|
+        result[word] = idx + 1
+      end
+      result
     end
 
     RANKED_DICTIONARIES = Zxcvbn.frequency_lists.transform_values do |lst|
@@ -213,7 +198,7 @@ module Zxcvbn
 
     def self.build_user_input_dictionary(user_inputs_or_dict)
       # optimization: if we receive a hash, we've been given the dict back (from the repeat matcher)
-      return user_inputs_or_dict if user_inputs_or_dict.is_a?(RankedDict)
+      return user_inputs_or_dict if user_inputs_or_dict.is_a?(Hash)
 
       sanitized_inputs = []
       user_inputs_or_dict.each do |arg|
