@@ -6,10 +6,10 @@ source "https://rubygems.org"
 gemspec
 
 group :development do
-  gem "mini_racer"
-  gem "rake", "~> 13.0"
-  gem "rspec", "~> 3.0"
-  gem "rubocop", "~> 1.56"
+  gem "mini_racer", "~> 0.16"
+  gem "rake", "~> 13.2"
+  gem "rspec", "~> 3.13"
+  gem "rubocop", "~> 1.68"
 
-  gem "simplecov", require: false
+  gem "simplecov", "~> 0.22", require: false
 end
