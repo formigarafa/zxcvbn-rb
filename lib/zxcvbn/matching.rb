@@ -16,7 +16,7 @@ module Zxcvbn
     end
 
     RANKED_DICTIONARIES_MAX_WORD_SIZE = RANKED_DICTIONARIES.transform_values do |word_scores|
-      word_scores.keys.max_by(&:size).size
+      word_scores.each_key.max_by(&:size)&.size || 0
     end
 
     GRAPHS = {
@@ -159,7 +159,7 @@ module Zxcvbn
       len = password.length
       password_lower = password.downcase
       longest_word_size = RANKED_DICTIONARIES_MAX_WORD_SIZE.fetch(dictionary_name) do
-        ranked_dict.keys.max_by(&:size)&.size || 0
+        ranked_dict.each_key.max_by(&:size)&.size || 0
       end
       search_width = [longest_word_size, len].min
       (0...len).each do |i|
