@@ -1,3 +1,8 @@
+## [0.1.13] - 2024-11-05
+- [17] Optimize both allocated and retained memory usage
+
+  *zarqman (@zarqman)*
+
 ## [0.1.12] - 2024-10-29
 - [16] Stop using OpenStruct
 
