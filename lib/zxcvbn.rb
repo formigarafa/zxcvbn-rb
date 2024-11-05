@@ -24,25 +24,33 @@ module Zxcvbn
   )
 
   def self.zxcvbn(password, user_inputs = [])
-    start = (Time.now.to_f * 1000).to_i
-    matches = Matching.new.omnimatch(password, user_inputs)
-    result = Scoring.most_guessable_match_sequence(password, matches)
-    result["calc_time"] = (Time.now.to_f * 1000).to_i - start
-    attack_times = TimeEstimates.estimate_attack_times(result["guesses"])
-    attack_times.each do |prop, val|
-      result[prop] = val
-    end
-    result["feedback"] = Feedback.get_feedback(result["score"], result["sequence"])
-    result
+    Tester.new.zxcvbn(password, user_inputs)
   end
 
   def self.test(password, user_inputs = [])
-    Result.new(Zxcvbn.zxcvbn(password, user_inputs))
+    Tester.new.test(password, user_inputs)
   end
 
   class Tester
+    def matching
+      @matching ||= Matching.new
+    end
+
     def test(password, user_inputs = [])
-      Zxcvbn.test(password, user_inputs)
+      Result.new(zxcvbn(password, user_inputs))
+    end
+
+    def zxcvbn(password, user_inputs = [])
+      start = (Time.now.to_f * 1000).to_i
+      matches = matching.omnimatch(password, user_inputs)
+      result = Scoring.most_guessable_match_sequence(password, matches)
+      result["calc_time"] = (Time.now.to_f * 1000).to_i - start
+      attack_times = TimeEstimates.estimate_attack_times(result["guesses"])
+      attack_times.each do |prop, val|
+        result[prop] = val
+      end
+      result["feedback"] = Feedback.get_feedback(result["score"], result["sequence"])
+      result
     end
   end
 end
