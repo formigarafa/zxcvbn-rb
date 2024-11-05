@@ -215,7 +215,7 @@ RSpec.describe "repeat guesses" do
   ].each do |token, base_token, repeat_count|
     base_guesses = Zxcvbn::Scoring.most_guessable_match_sequence(
       base_token,
-      Zxcvbn::Matching.omnimatch(base_token, {})
+      Zxcvbn::Matching.new.omnimatch(base_token, {})
     )["guesses"]
     match = {
       "token" => token,

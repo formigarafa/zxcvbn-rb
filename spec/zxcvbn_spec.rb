@@ -193,9 +193,13 @@ RSpec.describe Zxcvbn do
     end
 
     context "when running #zxcvbn" do
+      before(:all) do
+        @tester = Zxcvbn::Tester.new
+      end
+
       password_list.each do |pw|
         it "#zxcvbn produces same output for '#{pw}'" do
-          ruby_result = strip_precision Zxcvbn.zxcvbn(pw)
+          ruby_result = strip_precision @tester.zxcvbn(pw)
           js_result = strip_precision js_zxcvbn(pw)
 
           ruby_sequence_result = ruby_result["sequence"].map do |i|
