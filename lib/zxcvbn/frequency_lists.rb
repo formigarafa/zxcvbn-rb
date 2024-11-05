@@ -10,10 +10,8 @@ module Zxcvbn
   def self.file_enumerator(filename)
     Enumerator.new do |main_enum|
       File.open(filename) do |f|
-        f.each_line do |line|
-          next if line.nil?
-
-          main_enum << line.strip!.freeze
+        f.each_line(chomp: true) do |line|
+          main_enum << line.freeze
         end
       end
     end
