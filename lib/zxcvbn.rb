@@ -1,5 +1,6 @@
 # frozen_string_literal: true
 
+require_relative "zxcvbn/config"
 require_relative "zxcvbn/adjacency_graphs"
 require_relative "zxcvbn/frequency_lists"
 require_relative "zxcvbn/matching"
