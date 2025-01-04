@@ -3,7 +3,6 @@
 require "mini_racer"
 require "json"
 require "digest"
-require "base64"
 
 module JsHelpers
   def js_ctx
@@ -38,7 +37,7 @@ module JsHelpers
   end
 
   def cached_eval(js_str)
-    tmp_hash = Base64.urlsafe_encode64 Digest::MD5.digest(js_str.to_s), padding: false
+    tmp_hash = Digest::MD5.hexdigest(js_str.to_s)
     cache_name = Pathname(File.expand_path("../../../tmp/#{tmp_hash}.json", __FILE__))
     if File.exist?(cache_name)
       JSON.parse(File.read(cache_name))

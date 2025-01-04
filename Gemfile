@@ -6,7 +6,7 @@ source "https://rubygems.org"
 gemspec
 
 group :development do
-  gem "mini_racer", "~> 0.16"
+  gem "mini_racer", "~> 0.6"
   gem "rake", "~> 13.2"
   gem "rspec", "~> 3.13"
   gem "rubocop", "~> 1.68"

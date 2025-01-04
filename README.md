@@ -1,7 +1,7 @@
 # Zxcvbn
 
 [![Gem Version](https://badge.fury.io/rb/zxcvbn.svg)](https://badge.fury.io/rb/zxcvbn)
-[![Build Status](https://travis-ci.com/formigarafa/zxcvbn-rb.svg?branch=master)](https://travis-ci.com/formigarafa/zxcvbn-rb)
+[![Build Status](https://github.com/formigarafa/zxcvbn-rb/actions/workflows/tests.yml/badge.svg)](https://github.com/formigarafa/zxcvbn-rb)
 
 Ruby port of Dropbox's [zxcvbn.js](https://github.com/dropbox/zxcvbn) JavaScript library running completely in Ruby (no need to load execjs or libv8).
 
