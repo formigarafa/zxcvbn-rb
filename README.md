@@ -38,7 +38,7 @@ Or install it yourself as:
 
 ## Usage
 
-```
+```ruby
 Zxcvbn.zxcvbn("password")
 => {
   "password" => "password",
@@ -82,6 +82,21 @@ Zxcvbn.zxcvbn("password")
     ]
   }
 }
+```
+
+## Testing Multiple Passwords
+
+The dictionaries used for password strength testing are loaded each request to `Zxcvbn.zxcvbn`. If you you'd prefer to persist the dictionaries in memory (approx 7.2MB RSS) to perform lots of password tests in succession then you can use the `Zxcvbn::Tester` API:
+
+```ruby
+tester = Zxcvbn::Tester.new
+=> #<Zxcvbn::Tester:0x0000000102498678>
+
+tester.zxcvbn('@lfred2004', ['alfred'])
+=> {"password"=>"@lfred2004", "guesses"=>15000, "guesses_log10"=>4.176091259055681, "sequence"=>[{"pattern"=>"dictionary", ... "feedback"=>{"warning"=>"", "suggestions"=>["Add another word or two. Uncommon words are better.", "Predictable substitutions like '@' instead of 'a' don't help very much"]}}
+
+>> tester.zxcvbn('j0hn2025', ['john'])
+=> {"password"=>"j0hn2025", "guesses"=>225333.3333333333, "guesses_log10"=>5.352825441221974, "sequence"=>[{"pattern"=>"dictionary", ... "feedback"=>{"warning"=>"Common names and surnames are easy to guess", "suggestions"=>["Add another word or two. Uncommon words are better.", "Predictable substitutions like '@' instead of 'a' don't help very much"]}}
 ```
 
 ### Note about translations (i18n, gettext, etc...)
