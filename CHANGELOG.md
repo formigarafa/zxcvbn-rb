@@ -1,3 +1,16 @@
+## [1.0.0] - 2025-01-04
+- [20] Automated tests running with Github Actions
+- [19] Update Readme and Gem Description
+
+Possible breaking changes:
+- [18] Lazy loaded (and evictable) dictionaries.
+
+  The resulting values are unchanged but the way the gem works now changed to allow speedup app initialization and save memory.
+  Dictionaries are no longer loaded with the gem which speeds up initialization and reduce initial memory usage.
+  It also no longer keep the dictionaries in memory after use, garbage collection will free all the memory used by the dictionaries.
+  If you would like to avoid reloading the dictionaries on every call of `Zxcvbn.zxcvbn(...)` or `Zxcvbn.test(...)` class methods you could use
+  `Zxcvbn::Tester.new` to keep an instance with dictionaries loaded. Check the example on [README.md#testing-multiple-passwords](https://github.com/formigarafa/zxcvbn-rb/tree/master?tab=readme-ov-file#testing-multiple-passwords) for reference.
+
 ## [0.1.13] - 2024-11-05
 - [17] Optimize both allocated and retained memory usage
 
