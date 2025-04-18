@@ -36,6 +36,21 @@ Or install it yourself as:
 
     $ gem install zxcvbn
 
+    ## Configuration
+
+## Configuration
+
+Zxcvbn allows you to load custom dictionaries to enhance the password strength estimation.
+
+To load dictionaries, use the following syntax:
+
+```ruby
+Zxcvbn.configure do |config|
+  config.add_dictionary('path/to/custom_dictionary.txt')
+  # Add more dictionaries as needed
+end
+```
+
 ## Usage
 
 ```ruby
