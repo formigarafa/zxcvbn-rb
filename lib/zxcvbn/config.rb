@@ -6,8 +6,8 @@ module Zxcvbn
       data = File.read(path)
       lines = data.split("\n").map(&:strip)
       filename = File.basename(path, ".*")
-      new_ranked_dictionary = Hash[filename, Zxcvbn::Matching.build_ranked_dict(lines.join(",").split(","))]
-      Zxcvbn::Matching::RANKED_DICTIONARIES.merge! new_ranked_dictionary
+      new_ranked_dictionary = Hash[filename, Zxcvbn::Matching.new.build_ranked_dict(lines.join(",").split(","))]
+      Zxcvbn::Matching::CUSTOM_DICTIONARIES.merge! new_ranked_dictionary
     end
   end
 

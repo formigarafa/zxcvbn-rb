@@ -2,6 +2,8 @@
 
 module Zxcvbn
   class Matching
+    CUSTOM_DICTIONARIES = {}
+
     def build_ranked_dict(ordered_list)
       result = {}
       # rank starts at 1, not 0
@@ -14,7 +16,7 @@ module Zxcvbn
     def ranked_dictionaries
       @ranked_dictionaries ||= Zxcvbn.frequency_lists.transform_values do |lst|
         build_ranked_dict(lst)
-      end
+      end.merge! CUSTOM_DICTIONARIES
     end
 
     def ranked_dictionaries_max_word_size
