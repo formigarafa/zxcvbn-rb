@@ -173,7 +173,7 @@ RSpec.describe Zxcvbn do
       #       ruby_result = strip_precision Zxcvbn::Scoring.most_guessable_match_sequence(pw, matches)
       #       js_result = strip_precision js_most_guessable_match_sequence(pw, matches)
       #       # if ruby_result["sequence"] != js_result["sequence"]
-      #       #   binding.pry
+      #       #   binding.irb
       #       # end
       #       expect(ruby_result["sequence"]).to eq js_result["sequence"]
       #       ruby_base_result = ruby_result.reject { |k, _v| ["sequence", "guesses"].include? k }
@@ -183,7 +183,7 @@ RSpec.describe Zxcvbn do
       #       error_margin = error.to_f / js_result["guesses"]
       #       if error_margin > 0.0001
       #         puts args[0]["pattern"]
-      #         # binding.pry
+      #         # binding.irb
       #         # ruby_result = m.call(*args)
       #       end
       #       expect(error_margin).to be <= 0.0001
@@ -193,9 +193,13 @@ RSpec.describe Zxcvbn do
     end
 
     context "when running #zxcvbn" do
+      before(:all) do
+        @tester = Zxcvbn::Tester.new
+      end
+
       password_list.each do |pw|
         it "#zxcvbn produces same output for '#{pw}'" do
-          ruby_result = strip_precision Zxcvbn.zxcvbn(pw)
+          ruby_result = strip_precision @tester.zxcvbn(pw)
           js_result = strip_precision js_zxcvbn(pw)
 
           ruby_sequence_result = ruby_result["sequence"].map do |i|
@@ -236,9 +240,9 @@ RSpec.describe Zxcvbn do
     normal_result = Zxcvbn.zxcvbn("@lfred2004", ["alfred"]).reject { |k, _v| ["calc_time"].include? k }
     result1 = Zxcvbn.test("@lfred2004", ["alfred"])
     result2 = Zxcvbn::Tester.new.test("@lfred2004", ["alfred"])
-    expect(result1).to be_a(OpenStruct) # rubocop:disable Style/OpenStructUse
+    expect(result1).to be_a(Zxcvbn::Result)
     expect(result1.to_h.transform_keys(&:to_s).reject { |k, _v| ["calc_time"].include? k }).to eq(normal_result)
-    expect(result2).to be_a(OpenStruct) # rubocop:disable Style/OpenStructUse
+    expect(result2).to be_a(Zxcvbn::Result)
     expect(result2.to_h.transform_keys(&:to_s).reject { |k, _v| ["calc_time"].include? k }).to eq(normal_result)
   end
 end

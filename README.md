@@ -1,7 +1,7 @@
 # Zxcvbn
 
 [![Gem Version](https://badge.fury.io/rb/zxcvbn.svg)](https://badge.fury.io/rb/zxcvbn)
-[![Build Status](https://travis-ci.com/formigarafa/zxcvbn-rb.svg?branch=master)](https://travis-ci.com/formigarafa/zxcvbn-rb)
+[![Build Status](https://github.com/formigarafa/zxcvbn-rb/actions/workflows/tests.yml/badge.svg)](https://github.com/formigarafa/zxcvbn-rb)
 
 Ruby port of Dropbox's [zxcvbn.js](https://github.com/dropbox/zxcvbn) JavaScript library running completely in Ruby (no need to load execjs or libv8).
 
@@ -53,7 +53,7 @@ end
 
 ## Usage
 
-```
+```ruby
 Zxcvbn.zxcvbn("password")
 => {
   "password" => "password",
@@ -99,6 +99,21 @@ Zxcvbn.zxcvbn("password")
 }
 ```
 
+## Testing Multiple Passwords
+
+The dictionaries used for password strength testing are loaded each request to `Zxcvbn.zxcvbn`. If you you'd prefer to persist the dictionaries in memory (approx 7.2MB RSS) to perform lots of password tests in succession then you can use the `Zxcvbn::Tester` API:
+
+```ruby
+tester = Zxcvbn::Tester.new
+=> #<Zxcvbn::Tester:0x0000000102498678>
+
+tester.zxcvbn('@lfred2004', ['alfred'])
+=> {"password"=>"@lfred2004", "guesses"=>15000, "guesses_log10"=>4.176091259055681, "sequence"=>[{"pattern"=>"dictionary", ... "feedback"=>{"warning"=>"", "suggestions"=>["Add another word or two. Uncommon words are better.", "Predictable substitutions like '@' instead of 'a' don't help very much"]}}
+
+>> tester.zxcvbn('j0hn2025', ['john'])
+=> {"password"=>"j0hn2025", "guesses"=>225333.3333333333, "guesses_log10"=>5.352825441221974, "sequence"=>[{"pattern"=>"dictionary", ... "feedback"=>{"warning"=>"Common names and surnames are easy to guess", "suggestions"=>["Add another word or two. Uncommon words are better.", "Predictable substitutions like '@' instead of 'a' don't help very much"]}}
+```
+
 ### Note about translations (i18n, gettext, etc...)
 Check the [wiki](https://github.com/formigarafa/zxcvbn-rb/wiki) for more details on how to handle translations.
 
@@ -110,7 +125,7 @@ To install this gem onto your local machine, run `bundle exec rake install`. To 
 
 ## Contributing
 
-Bug reports and pull requests are welcome on GitHub at https://github.com/formigarafa/zxcvbn. This project is intended to be a safe, welcoming space for collaboration, and contributors are expected to adhere to the [code of conduct](https://github.com/[USERNAME]/zxcvbn/blob/master/CODE_OF_CONDUCT.md).
+Bug reports and pull requests are welcome on GitHub at https://github.com/formigarafa/zxcvbn-rb. This project is intended to be a safe, welcoming space for collaboration, and contributors are expected to adhere to the [code of conduct](https://github.com/formigarafa/zxcvbn-rb/blob/master/CODE_OF_CONDUCT.md).
 
 ## License
 
@@ -118,4 +133,4 @@ The gem is available as open source under the terms of the [MIT License](https:/
 
 ## Code of Conduct
 
-Everyone interacting in the Zxcvbn project's codebases, issue trackers, chat rooms and mailing lists is expected to follow the [code of conduct](https://github.com/[USERNAME]/zxcvbn/blob/master/CODE_OF_CONDUCT.md).
+Everyone interacting in the Zxcvbn project's codebases, issue trackers, chat rooms and mailing lists is expected to follow the [code of conduct](https://github.com/formigarafa/zxcvbn-rb/blob/master/CODE_OF_CONDUCT.md).

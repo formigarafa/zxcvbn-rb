@@ -8,8 +8,10 @@ Gem::Specification.new do |spec|
   spec.authors       = ["Rafael Santos"]
   spec.email         = ["formigarafa@gmail.com"]
 
-  spec.summary       = ""
-  spec.description   = "100% native Ruby 100% compatible port of Dropbox's zxcvbn.js"
+  spec.summary       = "Password Strength Estimation fully compatible with Dropbox's zxcvbn.js"
+  spec.description   = "Low-Budget Password Strength Estimation. " \
+                       "Direct Ruby port from Dropbox's zxcvbn.js code, free from external dependencies. " \
+                       "Fully compatible with Dropbox's zxcvbn.js result."
   spec.homepage      = "http://github.com/formigarafa/zxcvbn-rb"
   spec.license       = "MIT"
   spec.required_ruby_version = Gem::Requirement.new(">= 2.5.0")

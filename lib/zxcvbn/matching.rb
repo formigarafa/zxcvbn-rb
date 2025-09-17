@@ -1,8 +1,8 @@
 # frozen_string_literal: true
 
 module Zxcvbn
-  module Matching
-    def self.build_ranked_dict(ordered_list)
+  class Matching
+    def build_ranked_dict(ordered_list)
       result = {}
       # rank starts at 1, not 0
       ordered_list.each_with_index do |word, idx|
@@ -11,35 +11,43 @@ module Zxcvbn
       result
     end
 
-    RANKED_DICTIONARIES = FREQUENCY_LISTS.transform_values do |lst|
-      build_ranked_dict(lst)
+    def ranked_dictionaries
+      @ranked_dictionaries ||= Zxcvbn.frequency_lists.transform_values do |lst|
+        build_ranked_dict(lst)
+      end
     end
 
-    RANKED_DICTIONARIES_MAX_WORD_SIZE = RANKED_DICTIONARIES.transform_values do |word_scores|
-      word_scores.keys.max_by(&:size).size
+    def ranked_dictionaries_max_word_size
+      @ranked_dictionaries_max_word_size ||= ranked_dictionaries.transform_values do |word_scores|
+        word_scores.each_key.max_by(&:size)&.size || 0
+      end
     end
 
-    GRAPHS = {
-      "qwerty" => ADJACENCY_GRAPHS["qwerty"],
-      "dvorak" => ADJACENCY_GRAPHS["dvorak"],
-      "keypad" => ADJACENCY_GRAPHS["keypad"],
-      "mac_keypad" => ADJACENCY_GRAPHS["mac_keypad"]
-    }.freeze
+    def graphs
+      @graphs ||= {
+        "qwerty" => ADJACENCY_GRAPHS["qwerty"],
+        "dvorak" => ADJACENCY_GRAPHS["dvorak"],
+        "keypad" => ADJACENCY_GRAPHS["keypad"],
+        "mac_keypad" => ADJACENCY_GRAPHS["mac_keypad"]
+      }.freeze
+    end
 
-    L33T_TABLE = {
-      "a" => ["4", "@"],
-      "b" => ["8"],
-      "c" => ["(", "{", "[", "<"],
-      "e" => ["3"],
-      "g" => ["6", "9"],
-      "i" => ["1", "!", "|"],
-      "l" => ["1", "|", "7"],
-      "o" => ["0"],
-      "s" => ["$", "5"],
-      "t" => ["+", "7"],
-      "x" => ["%"],
-      "z" => ["2"]
-    }.freeze
+    def l33t_table
+      @l33t_table ||= {
+        "a" => ["4", "@"],
+        "b" => ["8"],
+        "c" => ["(", "{", "[", "<"],
+        "e" => ["3"],
+        "g" => ["6", "9"],
+        "i" => ["1", "!", "|"],
+        "l" => ["1", "|", "7"],
+        "o" => ["0"],
+        "s" => ["$", "5"],
+        "t" => ["+", "7"],
+        "x" => ["%"],
+        "z" => ["2"]
+      }.freeze
+    end
 
     REGEXEN = {
       # alpha_lower: /[a-z]/,
@@ -116,11 +124,11 @@ module Zxcvbn
       ]
     }.freeze
 
-    def self.translate(string, chr_map)
+    def translate(string, chr_map)
       string.chars.map { |chr| chr_map[chr] || chr }.join
     end
 
-    def self.sorted(matches)
+    def sorted(matches)
       # sort on i primary, j secondary
       matches.sort_by! { |match| [match["i"], match["j"]] }
     end
@@ -128,64 +136,65 @@ module Zxcvbn
     # ------------------------------------------------------------------------------
     # omnimatch -- combine everything ----------------------------------------------
     # ------------------------------------------------------------------------------
-    def self.omnimatch(password)
+    def omnimatch(password, user_inputs = [])
+      user_dict = build_user_input_dictionary(user_inputs)
       matches = []
-      matchers = [
-        :dictionary_match,
-        :reverse_dictionary_match,
-        :l33t_match,
-        :spatial_match,
-        :repeat_match,
-        :sequence_match,
-        :regex_match,
-        :date_match
-      ]
-      matchers.each do |matcher|
-        matches += send(matcher, password)
-      end
+      matches += dictionary_match(password, user_dict, _ranked_dictionaries = ranked_dictionaries)
+      matches += reverse_dictionary_match(password, user_dict, _ranked_dictionaries = ranked_dictionaries)
+      matches += l33t_match(password, user_dict, _ranked_dictionaries = ranked_dictionaries, _l33t_table = l33t_table)
+      matches += spatial_match(password, _graphs = graphs)
+      matches += repeat_match(password, user_dict)
+      matches += sequence_match(password)
+      matches += regex_match(password, _regexen = REGEXEN)
+      matches += date_match(password)
       sorted(matches)
     end
 
     #-------------------------------------------------------------------------------
     # dictionary match (common passwords, english, last names, etc) ----------------
     #-------------------------------------------------------------------------------
-    def self.dictionary_match(password, _ranked_dictionaries = RANKED_DICTIONARIES)
+    def dictionary_match(password, user_dict, _ranked_dictionaries = ranked_dictionaries)
       # _ranked_dictionaries variable is for unit testing purposes
       matches = []
-      len = password.length
-      password_lower = password.downcase
       _ranked_dictionaries.each do |dictionary_name, ranked_dict|
-        longest_dict_word_size = RANKED_DICTIONARIES_MAX_WORD_SIZE.fetch(dictionary_name) do
-          ranked_dict.keys.max_by(&:size)&.size || 0
-        end
-        search_width = [longest_dict_word_size, len].min
-        (0...len).each do |i|
-          search_end = [i + search_width, len].min
-          (i...search_end).each do |j|
-            if ranked_dict.key?(password_lower[i..j])
-              word = password_lower[i..j]
-              rank = ranked_dict[word]
-              matches << {
-                "pattern" => "dictionary",
-                "i" => i,
-                "j" => j,
-                "token" => password[i..j],
-                "matched_word" => word,
-                "rank" => rank,
-                "dictionary_name" => dictionary_name,
-                "reversed" => false,
-                "l33t" => false
-              }
-            end
-          end
-        end
+        check_dictionary(matches, password, dictionary_name, ranked_dict)
       end
+      check_dictionary(matches, password, "user_inputs", user_dict)
       sorted(matches)
     end
 
-    def self.reverse_dictionary_match(password, _ranked_dictionaries = RANKED_DICTIONARIES)
+    def check_dictionary(matches, password, dictionary_name, ranked_dict)
+      len = password.length
+      password_lower = password.downcase
+      longest_word_size = ranked_dictionaries_max_word_size.fetch(dictionary_name) do
+        ranked_dict.each_key.max_by(&:size)&.size || 0
+      end
+      search_width = [longest_word_size, len].min
+      (0...len).each do |i|
+        search_end = [i + search_width, len].min
+        (i...search_end).each do |j|
+          if ranked_dict.key?(password_lower[i..j])
+            word = password_lower[i..j]
+            rank = ranked_dict[word]
+            matches << {
+              "pattern" => "dictionary",
+              "i" => i,
+              "j" => j,
+              "token" => password[i..j],
+              "matched_word" => word,
+              "rank" => rank,
+              "dictionary_name" => dictionary_name,
+              "reversed" => false,
+              "l33t" => false
+            }
+          end
+        end
+      end
+    end
+
+    def reverse_dictionary_match(password, user_dict, _ranked_dictionaries = ranked_dictionaries)
       reversed_password = password.reverse
-      matches = dictionary_match(reversed_password, _ranked_dictionaries)
+      matches = dictionary_match(reversed_password, user_dict, _ranked_dictionaries)
       matches.each do |match|
         match["token"] = match["token"].reverse
         match["reversed"] = true
@@ -195,17 +204,22 @@ module Zxcvbn
       sorted(matches)
     end
 
-    def self.user_input_dictionary=(ordered_list)
-      ranked_dict = build_ranked_dict(ordered_list.dup)
-      RANKED_DICTIONARIES["user_inputs"] = ranked_dict
-      RANKED_DICTIONARIES_MAX_WORD_SIZE["user_inputs"] = ranked_dict.keys.max_by(&:size)&.size || 0
+    def build_user_input_dictionary(user_inputs_or_dict)
+      # optimization: if we receive a hash, we've been given the dict back (from the repeat matcher)
+      return user_inputs_or_dict if user_inputs_or_dict.is_a?(Hash)
+
+      sanitized_inputs = []
+      user_inputs_or_dict.each do |arg|
+        sanitized_inputs << arg.to_s.downcase if arg.is_a?(String) || arg.is_a?(Numeric) || arg == true || arg == false
+      end
+      build_ranked_dict(sanitized_inputs)
     end
 
     #-------------------------------------------------------------------------------
     # dictionary match with common l33t substitutions ------------------------------
     #-------------------------------------------------------------------------------
     # makes a pruned copy of l33t_table that only includes password's possible substitutions
-    def self.relevant_l33t_subtable(password, table)
+    def relevant_l33t_subtable(password, table)
       password_chars = {}
       password.chars.each do |chr|
         password_chars[chr] = true
@@ -222,7 +236,7 @@ module Zxcvbn
     end
 
     # returns the list of possible 1337 replacement dictionaries for a given password
-    def self.enumerate_l33t_subs(table)
+    def enumerate_l33t_subs(table)
       dedup = lambda do |subs|
         deduped = []
         members = {}
@@ -287,13 +301,13 @@ module Zxcvbn
       sub_dicts
     end
 
-    def self.l33t_match(password, _ranked_dictionaries = RANKED_DICTIONARIES, _l33t_table = L33T_TABLE)
+    def l33t_match(password, user_dict, _ranked_dictionaries = ranked_dictionaries, _l33t_table = l33t_table)
       matches = []
       enumerate_l33t_subs(relevant_l33t_subtable(password, _l33t_table)).each do |sub|
         break if sub.empty? # corner case: password has no relevant subs.
 
         subbed_password = translate(password, sub)
-        dictionary_match(subbed_password, _ranked_dictionaries).each do |match|
+        dictionary_match(subbed_password, user_dict, _ranked_dictionaries).each do |match|
           token = password[match["i"]..match["j"]]
           if token.downcase == match["matched_word"]
             next # only return the matches that contain an actual substitution
@@ -321,7 +335,7 @@ module Zxcvbn
     # ------------------------------------------------------------------------------
     # spatial match (qwerty/dvorak/keypad) -----------------------------------------
     # ------------------------------------------------------------------------------
-    def self.spatial_match(password, _graphs = GRAPHS)
+    def spatial_match(password, _graphs = graphs)
       matches = []
       _graphs.each do |graph_name, graph|
         matches += spatial_match_helper(password, graph, graph_name)
@@ -331,7 +345,7 @@ module Zxcvbn
 
     SHIFTED_RX = /[~!@#$%^&*()_+QWERTYUIOP{}|ASDFGHJKL:"ZXCVBNM<>?]/.freeze
 
-    def self.spatial_match_helper(password, graph, graph_name)
+    def spatial_match_helper(password, graph, graph_name)
       matches = []
       i = 0
       while i < password.length - 1
@@ -403,7 +417,7 @@ module Zxcvbn
     #-------------------------------------------------------------------------------
     # repeats (aaa, abcabcabc) and sequences (abcdef) ------------------------------
     #-------------------------------------------------------------------------------
-    def self.repeat_match(password)
+    def repeat_match(password, user_dict)
       matches = []
       greedy = /(.+)\1+/
       lazy = /(.+?)\1+/
@@ -436,7 +450,7 @@ module Zxcvbn
         i = match.begin(0)
         j = match.end(0) - 1
         # recursively match and score the base string
-        base_analysis = Scoring.most_guessable_match_sequence(base_token, omnimatch(base_token))
+        base_analysis = Scoring.most_guessable_match_sequence(base_token, omnimatch(base_token, user_dict))
         base_matches = base_analysis["sequence"]
         base_guesses = base_analysis["guesses"]
         matches << {
@@ -456,7 +470,7 @@ module Zxcvbn
 
     MAX_DELTA = 5
 
-    def self.sequence_match(password)
+    def sequence_match(password)
       # Identifies sequences by looking for repeated differences in unicode codepoint.
       # this allows skipping, such as 9753, and also matches some extended unicode sequences
       # such as Greek and Cyrillic alphabets.
@@ -526,7 +540,7 @@ module Zxcvbn
     #-------------------------------------------------------------------------------
     # regex matching ---------------------------------------------------------------
     #-------------------------------------------------------------------------------
-    def self.regex_match(password, _regexen = REGEXEN)
+    def regex_match(password, _regexen = REGEXEN)
       matches = []
       _regexen.each do |name, regex|
         # regex.lastIndex = 0; # keeps regex_match stateless
@@ -550,7 +564,7 @@ module Zxcvbn
     #-------------------------------------------------------------------------------
     # date matching ----------------------------------------------------------------
     #-------------------------------------------------------------------------------
-    def self.date_match(password)
+    def date_match(password)
       # a "date" is recognized as:
       #   any 3-tuple that starts or ends with a 2- or 4-digit year,
       #   with 2 or 0 separator chars (1.1.91 or 1191),
@@ -656,7 +670,7 @@ module Zxcvbn
       end)
     end
 
-    def self.map_ints_to_dmy(ints)
+    def map_ints_to_dmy(ints)
       # given a 3-tuple, discard if:
       #   middle int is over 31 (for all dmy formats, years are never allowed in the middle)
       #   middle int is zero
@@ -716,7 +730,7 @@ module Zxcvbn
       nil
     end
 
-    def self.map_ints_to_dm(ints)
+    def map_ints_to_dm(ints)
       [ints, ints.reverse].each do |(d, m)|
         if (d >= 1 && d <= 31) && (m >= 1 && m <= 12)
           return {
@@ -728,7 +742,7 @@ module Zxcvbn
       nil
     end
 
-    def self.two_to_four_digit_year(year)
+    def two_to_four_digit_year(year)
       if year > 99
         year
       elsif year > 50
