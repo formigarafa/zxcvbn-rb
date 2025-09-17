@@ -5,7 +5,9 @@ RSpec.describe "Zxcvbn::Config" do
 
     before do
       allow(File).to receive(:read).and_call_original
-      allow(File).to receive(:read).with(dictionary_path).and_return(dictionary_contents)
+      allow(File).to receive(:read)
+        .with(dictionary_path, hash_including(encoding: "UTF-8"))
+        .and_return(dictionary_contents)
     end
 
     it "adds a custom dictionary to ranked_dictionaries" do

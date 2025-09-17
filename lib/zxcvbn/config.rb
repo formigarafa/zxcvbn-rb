@@ -1,14 +1,14 @@
 module Zxcvbn
   module Config
-    extend self
-
     def add_dictionary(path)
-      data = File.read(path)
-      lines = data.split("\n").map(&:strip)
-      filename = File.basename(path, ".*")
-      new_ranked_dictionary = Hash[filename, Zxcvbn::Matching.new.build_ranked_dict(lines.join(",").split(","))]
-      Zxcvbn::Matching::CUSTOM_DICTIONARIES.merge! new_ranked_dictionary
+      data = File.read(path, encoding: "UTF-8")
+      lines = data.each_line(chomp: true).map { |l| l.strip }.reject(&:empty?)
+      name = File.basename(path, ".*")
+      ranked = Zxcvbn::Matching.new.build_ranked_dict(lines)
+      Zxcvbn::Matching.register_dictionary(name, ranked)
     end
+
+    module_function :add_dictionary
   end
 
   class << self
