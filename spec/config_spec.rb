@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 RSpec.describe "Zxcvbn::Config" do
   describe "#add_dictionary" do
     let(:dictionary_path) { "custom_dictionary.txt" }
