@@ -2,6 +2,16 @@
 
 module Zxcvbn
   class Matching
+    @custom_dictionaries = {}.freeze
+
+    class << self
+      attr_reader :custom_dictionaries
+
+      def register_dictionary(name, ranked)
+        @custom_dictionaries = @custom_dictionaries.merge(name => ranked).freeze
+      end
+    end
+
     def build_ranked_dict(ordered_list)
       result = {}
       # rank starts at 1, not 0
@@ -14,7 +24,7 @@ module Zxcvbn
     def ranked_dictionaries
       @ranked_dictionaries ||= Zxcvbn.frequency_lists.transform_values do |lst|
         build_ranked_dict(lst)
-      end
+      end.merge! self.class.custom_dictionaries
     end
 
     def ranked_dictionaries_max_word_size
