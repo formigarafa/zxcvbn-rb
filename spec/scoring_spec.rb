@@ -277,10 +277,11 @@ RSpec.describe "regex guesses" do
   end
 
   it "guesses of MIN_YEAR_SPACE for a year close to REFERENCE_YEAR" do
+    spaced_year = Integer(Time.now.strftime("%Y")) - 20
     match = {
-      "token" => "2005",
+      "token" => spaced_year,
       "regex_name" => "recent_year",
-      "regex_match" => ["2005"]
+      "regex_match" => [spaced_year]
     }
     expect(Zxcvbn::Scoring.regex_guesses(match)).to eq(Zxcvbn::Scoring::MIN_YEAR_SPACE)
   end
