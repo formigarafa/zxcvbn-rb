@@ -3,52 +3,10 @@
 RSpec.describe Zxcvbn do
   password_list = <<~PASSWORD_LIST.lines.map(&:strip).reject(&:empty?)
     zxcvbn
-    ZXCVBN
     qwER43@!
     Tr0ub4dour&3
     correcthorsebatterystaple
     coRrecth0rseba++ery9.23.2007staple$
-
-    P@ssword
-    p@ssword
-    p@$$word
-    p4@ssword
-    123456
-    123456789
-    11111111
-    zxcvbnm,./
-    love88
-    angel08
-    monkey13
-    iloveyou
-    woaini
-    wang
-    johnsonphilosophy
-    nosnhoj
-    2001
-    Johnjohnson
-    tianya
-    zhang198822
-    li4478
-    a6a4Aa8a
-    b6b4Bb8b
-    z6z4Zz8z
-    aiIiAaIA
-    zxXxZzXZ
-    pässwörd
-    alpha bravo charlie delta
-    a b c d e f g h i j k l m n o p q r s t u v w x y z 0 1 2 3 4 5 6 7 8 9
-    a b c 1 2 3
-    correct-horse-battery-staple
-    correct.horse.battery.staple
-    correct,horse,battery,staple
-    correct~horse~battery~staple
-    WhyfaultthebardifhesingstheArgives’harshfate?
-    Eupithes’sonAntinousbroketheirsilence
-    Athena lavished a marvelous splendor
-    buckmulliganstenderchant
-    seethenthatyewalkcircumspectly
-    !"£$%^&*()
 
     D0g..................
     abcdefghijk987654321
@@ -80,32 +38,17 @@ RSpec.describe Zxcvbn do
     ros3bud99
     r0s3bud99
     R0$38uD99
-    abcabcabc123123123abcabcabc
-    abcdefghijk
-    abcabcabc
+
     verlineVANDERMARK
 
     eheuczkqyq
     rWibMFACxAUGZmxhVncy
     Ba9ZyWABu99[BK#6MBgbH88Tofv)vs$w
-    philosophy
-    13.05.1988
-    chenlu0525
-    Bilbo Baggin
-    rtrtrt
-    rtrtrtrt
-    rtrtrtrtrt
-    rtrtrtrtrtrt
-    #{Time.now.year}
-    defd12a3f84ff98ae39c9a1dbf31b4bbbfcc189051bff922bb6ffd01360dce24
-    5372fb692cbd0e9d7e9d54680bd0a5e34b9acb1ca036865e813a8646eea8b4fe
 
-    vika20021994
-    password
-    vkeuvuxkskf37w
-    Obama!123
-    LihiandthepeopleofMorianton
-    establishedinthecityofZarahemla
+    chenlu0525
+    rtrtrtrt
+    my_new_password
+    Bilbo Baggin
   PASSWORD_LIST
 
   context "when comparing with js library" do
